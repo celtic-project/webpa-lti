@@ -22,6 +22,7 @@
  *  Version history:
  *    1.0.00   4-Jul-12  Initial release
  *    1.1.00  10-Feb-13
+ *    1.2.00  27-Aug-18  Updated to include support for MySQLi
 */
 
 ###
@@ -45,7 +46,7 @@
 #
 ### Initialise LTI Tool Consumer
 #
-  $consumer = new LTI_Tool_Consumer($source, APP__DB_TABLE_PREFIX);
+  $consumer = new LTI_Tool_Consumer($source, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
 #
 ### Set the page information
 #

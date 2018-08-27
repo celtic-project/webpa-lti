@@ -22,6 +22,7 @@
  *  Version history:
  *    1.0.00   4-Jul-12  Initial release
  *    1.1.00  10-Feb-13  Changed "enabled?" column to "available?"
+ *    1.2.00  27-Aug-18  Updated to include support for MySQLi
 */
 
 ###
@@ -40,7 +41,7 @@
 #
 ### Get list of sources
 #
-  $tool_provider = new LTI_Tool_Provider(NULL, APP__DB_TABLE_PREFIX);
+  $tool_provider = new LTI_Tool_Provider(NULL, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
   $sources = $tool_provider->getConsumers();
 #
 ### Set the page information

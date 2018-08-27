@@ -23,6 +23,7 @@
  *    1.0.00   4-Jul-12  Initial release
  *    1.1.00  10-Feb-13  Renamed "upload data" option to "sync data"
  *                       Added option to override name of "logout" option
+ *    1.2.00  27-Aug-18  Updated to include support for MySQLi
 */
 
 ###
@@ -36,7 +37,8 @@
 ### Check if this is an LTI connection
 #
   if ($_source_id) {
-    $consumer = new LTI_Tool_Consumer($_SESSION['_user_source_id'], APP__DB_TABLE_PREFIX);
+    $DB->open();
+    $consumer = new LTI_Tool_Consumer($_SESSION['_user_source_id'], array($DB->getConnection(), APP__DB_TABLE_PREFIX));
     $user_resource_link = new LTI_Resource_Link($consumer, $_SESSION['_user_context_id']);
     if ($this->_user->is_staff() && $_source_id) {
 #

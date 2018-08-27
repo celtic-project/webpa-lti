@@ -22,6 +22,7 @@
  *  Version history:
  *    1.0.00   4-Jul-12  Initial release
  *    1.1.00  10-Feb-13  Updated for LTI_Tool_Provider 2.3 class
+ *    1.2.00  27-Aug-18  Updated to include support for MySQLi
 */
 
 ###
@@ -57,7 +58,7 @@
 ?>
 <div class="content_box">
 <?php
-  $consumer = new LTI_Tool_Consumer($_source_id, APP__DB_TABLE_PREFIX);
+  $consumer = new LTI_Tool_Consumer($_source_id, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
   $resource_link = new LTI_Resource_Link($consumer, $_module_code);
   if ($resource_link->hasOutcomesService()) {
     $assessment_id = fetch_GET('a');

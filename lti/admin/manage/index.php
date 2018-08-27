@@ -24,6 +24,7 @@
  *    1.1.00  10-Feb-13  Updated for LTI_Tool_Provider 2.3 class
  *                       Renamed "upload data" option to "sync data"
  *                       Added group synchronisation option
+ *    1.2.00  27-Aug-18  Updated to include support for MySQLi
 */
 
 ###
@@ -63,7 +64,7 @@
 #
 ### Check the LTI resource link supports the memberships service
 #
-  $consumer = new LTI_Tool_Consumer($_user_source_id, APP__DB_TABLE_PREFIX);
+  $consumer = new LTI_Tool_Consumer($_user_source_id, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
   $resource_link = new LTI_Resource_Link($consumer, $_SESSION['_user_context_id']);
   if ($resource_link->hasMembershipsService()) {
     $group_handler = new GroupHandler();
@@ -301,7 +302,7 @@
 #
 ### Fetch latest enrolment list from source
 #
-      $consumer_instance->defaultEmail = DEFAULT_EMAIL;
+      $consumer->defaultEmail = DEFAULT_EMAIL;
       $members = $resource_link->doMembershipsService(TRUE);
       if ($members !== FALSE) {
         $query = 'SELECT u.username, u.user_id, u.forename, u.lastname, u.email, um.user_type FROM ' .

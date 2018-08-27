@@ -23,6 +23,7 @@
  *    1.0.00   4-Jul-12  Initial release
  *    1.1.00  10-Feb-13  Added option to override name of "logout" option
  *                       Updated for WebPA cookie check
+ *    1.2.00  27-Aug-18  Updated to include support for MySQLi
 */
 
 ###
@@ -43,7 +44,7 @@
 #
 ### Perform LTI connection
 #
-  $tool = new LTI_Tool_Provider(array('connect' => 'doConnect'), APP__DB_TABLE_PREFIX);
+  $tool = new LTI_Tool_Provider(array('connect' => 'doConnect'), array($DB->getConnection(), APP__DB_TABLE_PREFIX));
   $tool->allowSharing = ALLOW_SHARING;
   $tool->defaultEmail = DEFAULT_EMAIL;
   $tool->execute();
