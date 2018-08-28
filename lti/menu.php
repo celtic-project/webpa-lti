@@ -37,6 +37,7 @@
 ### Check if this is an LTI connection
 #
   if ($_source_id) {
+    global $DB;
     $DB->open();
     $consumer = new LTI_Tool_Consumer($_SESSION['_user_source_id'], array($DB->getConnection(), APP__DB_TABLE_PREFIX));
     $user_resource_link = new LTI_Resource_Link($consumer, $_SESSION['_user_context_id']);
