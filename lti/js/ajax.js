@@ -1,6 +1,6 @@
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2013  Stephen P Vickers
+ *  Copyright (C) 2019  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,11 +17,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *  Contact: stephen@spvsoftwareproducts.com
- *
- *  Version history:
- *    1.0.00   4-Jul-12  Initial release
- *    1.1.00  10-Feb-13  Updated for new query parameter name
-*/
+ */
 
 var http_request = false;
 var el_id;
@@ -31,12 +27,12 @@ function doApprove(id, url, ci, rlid) {
   if (http_request) {
     var el = document.getElementById('button' + id);
     url += '?do=' + el.value + '&ci=' + escape(ci) + '&rlid=' + escape(rlid);
-		el_id = id;
-		http_request.onreadystatechange = alertApprove;
-		http_request.open('GET', url, true);
-		http_request.send(null);
+    el_id = id;
+    http_request.onreadystatechange = alertApprove;
+    http_request.open('GET', url, true);
+    http_request.send(null);
   }
-	return false;
+  return false;
 }
 
 function alertApprove() {
@@ -44,13 +40,13 @@ function alertApprove() {
     if (http_request.status == 200) {
       var button = document.getElementById('button' + el_id);
       var label = document.getElementById('label' + el_id);
-			if (button.value == 'Approve') {
-				button.value='Suspend';
-				label.innerHTML = 'Yes';
-			} else {
-				button.value='Approve';
-				label.innerHTML = 'No';
-			}
+      if (button.value == 'Approve') {
+        button.value = 'Suspend';
+        label.innerHTML = 'Yes';
+      } else {
+        button.value = 'Approve';
+        label.innerHTML = 'No';
+      }
     }
   }
 }
@@ -60,45 +56,46 @@ function doGenerateKey() {
   if (http_request) {
     var url = 'generate.php';
     var el = document.getElementById('life');
-   	url += '?life=' + el.value;
+    url += '?life=' + el.value;
     el = document.getElementById('auto_approve');
     if (el.checked) {
-			url += '&auto_approve=yes';
-		}
-		http_request.onreadystatechange = alertGenerateKey;
-		http_request.open('GET', url, true);
-		http_request.send(null);
-	}
-	return false;
+      url += '&auto_approve=yes';
+    }
+    http_request.onreadystatechange = alertGenerateKey;
+    http_request.open('GET', url, true);
+    http_request.send(null);
+  }
+  return false;
 }
 
 function alertGenerateKey() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
-			var key = http_request.responseText;
-			if (key.length > 0) {
+      var key = http_request.responseText;
+      if (key.length > 0) {
         window.prompt('Send this share key string to the other instructor:', 'share_key=' + key);
-			} else {
-				alert('Sorry an error occurred in generating a new share key; please try again');
-			}
-		} else {
-			alert('Sorry unable to generate a new share key');
+      } else {
+        alert('Sorry an error occurred in generating a new share key; please try again');
+      }
+    } else {
+      alert('Sorry unable to generate a new share key');
     }
   }
 }
 
 
 function getHTTPRequest() {
-	http_request = false;
-	if (window.XMLHttpRequest) { // Mozilla, Safari,...
-		http_request = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // IE
-		try {
-			http_request = new ActiveXObject("Msxml2.XMLHTTP");
-		} catch (e) {
-			try {
-				http_request = new ActiveXObject("Microsoft.XMLHTTP");
-			} catch (e) {}
-		}
-	}
+  http_request = false;
+  if (window.XMLHttpRequest) { // Mozilla, Safari,...
+    http_request = new XMLHttpRequest();
+  } else if (window.ActiveXObject) { // IE
+    try {
+      http_request = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e) {
+      }
+    }
+  }
 }

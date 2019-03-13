@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2013  Stephen P Vickers
+ *  Copyright (C) 2019  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,78 +18,76 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *  Contact: stephen@spvsoftwareproducts.com
- *
- *  Version history:
- *    1.0.00   4-Jul-12  Initial release
- *    1.1.00  10-Feb-13  Renamed "upload data" option to "sync data"
- *                       Added option to override name of "logout" option
- *    1.2.00  27-Aug-18  Updated to include support for MySQLi
-*/
+ */
 
 ###
 ###  Update WebPA menu when accessing an LTI module
 ###
 
-  require_once('setting.php');
-  require_once('lib/LTI_Tool_Provider.php');
+use ceLTIc\LTI\DataConnector\DataConnector;
+use ceLTIc\LTI\ToolConsumer;
+use ceLTIc\LTI\ResourceLink;
+
+require_once('vendor/autoload.php');
+require_once('setting.php');
+
+global $DB, $dataconnector, $consumer, $user_resource_link;
 
 #
 ### Check if this is an LTI connection
 #
-  if ($_source_id) {
-    global $DB;
-    $DB->open();
-    $consumer = new LTI_Tool_Consumer($_SESSION['_user_source_id'], array($DB->getConnection(), APP__DB_TABLE_PREFIX));
-    $user_resource_link = new LTI_Resource_Link($consumer, $_SESSION['_user_context_id']);
+$DB->open();
+$dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+if ($_source_id) {
+    $consumer = new ToolConsumer($_SESSION['_user_source_id'], $dataconnector);
+    $user_resource_link = ResourceLink::fromConsumer($consumer, $_SESSION['_user_context_id']);
     if ($this->_user->is_staff() && $_source_id) {
 #
 ### Update upload option if Memberships service is available
 #
-      $menu = $this->get_menu('Admin');
-      if ($user_resource_link->hasMembershipsService()) {
-        $menu['sync data'] = APP__WWW . "/mod/$mod/admin/manage/";
-//      } else {
-//        unset($menu['upload data']);
-      }
-      unset($menu['upload data']);
+        $menu = $this->get_menu('Admin');
+        if ($user_resource_link->hasMembershipsService()) {
+            $menu['sync data'] = APP__WWW . "/mod/$mod/admin/manage/";
+        }
+        unset($menu['upload data']);
 #
 ### Add upload option if Outcomes service is available
 #
-      if ($user_resource_link->hasOutcomesService()) {
-        $menu['transfer grades'] = APP__WWW . "/mod/$mod/admin/grade/";
-      }
+        if ($user_resource_link->hasOutcomesService()) {
+            $menu['transfer grades'] = APP__WWW . "/mod/$mod/admin/grade/";
+        }
 #
 ### Add sharing option if enabled
 #
-      if (ALLOW_SHARING && ($_source_id == $_SESSION['_user_source_id'])) {
-        $menu['sharing'] = APP__WWW . "/mod/$mod/admin/share/";
-      }
-      $this->set_menu('Admin', $menu);
+        if (ALLOW_SHARING && ($_source_id == $_SESSION['_user_source_id'])) {
+            $menu['sharing'] = APP__WWW . "/mod/$mod/admin/share/";
+        }
+        $this->set_menu('Admin', $menu);
     }
-  }
+}
 
 #
 ### Add sources menu for administrators
 #
-  if ($this->_user->is_admin()) {
-    $this->set_menu('LTI Admin', array('lti sources' => APP__WWW . "/mod/$mod/admin/source/",
-                                 'change source' => APP__WWW . "/mod/$mod/admin/source.php"));
-  } else {
+if ($this->_user->is_admin()) {
+    $this->set_menu('LTI Admin',
+        array('lti sources' => APP__WWW . "/mod/$mod/admin/source/",
+            'change source' => APP__WWW . "/mod/$mod/admin/source.php"));
+} else {
 #
 ### Add message to logout option
 #
     $menu = $this->get_menu(' ');
     if (isset($_SESSION['logout_url'])) {
-      $text = 'return to VLE';
-      if (isset($_SESSION['branding_return_menu_text'])) {
-        $text = $_SESSION['branding_return_menu_text'];
-      }
-      $menu[$text] = APP__WWW .'/logout.php';
-      unset($menu['logout']);
+        $text = 'return to VLE';
+        if (isset($_SESSION['branding_return_menu_text'])) {
+            $text = $_SESSION['branding_return_menu_text'];
+        }
+        $menu[$text] = APP__WWW . '/logout.php';
+        unset($menu['logout']);
     } else {
-      $menu['logout'] = APP__WWW .'/logout.php?lti_msg=' . urlencode('You have been logged out of ' . APP__NAME);
+        $menu['logout'] = APP__WWW . '/logout.php?lti_msg=' . urlencode('You have been logged out of ' . APP__NAME);
     }
     $this->set_menu(' ', $menu);
-  }
-
+}
 ?>

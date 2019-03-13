@@ -20,43 +20,26 @@
  *  Contact: stephen@spvsoftwareproducts.com
  */
 
-###
-###  Set approval status of a share
-###
+#
+### Autoload a class file - this file will be replaced when using composer.
+#
+spl_autoload_register(function ($class) {
 
-use ceLTIc\LTI\ResourceLink;
+    // base directory for the class files
+    $base_dir = __DIR__ . DIRECTORY_SEPARATOR;
 
-require_once('../../../../includes/inc_global.php');
+    // Replace the namespace prefix with the base directory, replace namespace
+    // separators with directory separators in the relative class name, append
+    // with .php
+    $file = $base_dir . preg_replace('/[\\\\\/]/', DIRECTORY_SEPARATOR, $class) . '.php';
 
-#
-### Get query parameters
-#
-$do = fetch_GET('do');
-$resource_link_id = fetch_GET('rlid');
-#
-### Check parameters
-#
-$ok = FALSE;
-$approve = NULL;
-if (!empty($do) && !empty($resource_link_id)) {
-    if ($do == 'Approve') {
-        $approve = TRUE;
-    } else if ($do == 'Suspend') {
-        $approve = FALSE;
+    // Update location if class requested is from the LTI class library
+    $file = str_replace(DIRECTORY_SEPARATOR . 'celtic' . DIRECTORY_SEPARATOR . 'lti' . DIRECTORY_SEPARATOR,
+        DIRECTORY_SEPARATOR . 'cwltic' . DIRECTORY_SEPARATOR . 'lti' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, $file);
+
+    // if the file exists, require it
+    if (file_exists($file)) {
+        require($file);
     }
-    if (!is_null($approve)) {
-#
-### Update status
-#
-        $resource_link = ResourceLink::fromRecordId($resource_link_id, $consumer->getDataConnector());
-        $resource_link->shareApproved = $approve;
-        $ok = $resource_link->save();
-    }
-}
-#
-### Return HTTP error if request not processed
-#
-if (!$ok) {
-    header("Status: 404 Not Found", TRUE, 404);
-}
+});
 ?>

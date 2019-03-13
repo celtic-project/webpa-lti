@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2013  Stephen P Vickers
+ *  Copyright (C) 2019  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,44 +18,37 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *  Contact: stephen@spvsoftwareproducts.com
- *
- *  Version history:
- *    1.0.00   4-Jul-12  Initial release
- *    1.1.00  10-Feb-13  Updated for LTI_Tool_Provider 2.3 class
- *    1.2.00  27-Aug-18  Updated to include support for MySQLi
-*/
+ */
 
 ###
 ###  Page to update list of enrolled users
 ###
 
-  require_once('../../../../includes/inc_global.php');
+use ceLTIc\LTI\ResourceLink;
+
+require_once('../../../../includes/inc_global.php');
 
 #
 ### Get query parameters
 #
-  $consumer_key = fetch_GET('ci');
-  $resource_link_id = fetch_GET('rlid');
+$resource_link_id = fetch_GET('rlid');
 #
 ### Check parameters
 #
-  if (!empty($consumer_key) && !empty($resource_link_id)) {
+if (!empty($resource_link_id)) {
 #
 ### Initialise LTI Resource Link
 #
-    $consumer = new LTI_Tool_Consumer($consumer_key, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
-    $resource_link = new LTI_Resource_Link($consumer, $resource_link_id);
+    $resource_link = ResourceLink::fromRecordId($resource_link_id, $consumer->getDataConnector());
 #
 ### Cancel share
 #
-    $resource_link->primary_consumer_key = NULL;
-    $resource_link->primary_resource_link_id = NULL;
-    $resource_link->share_approved = NULL;
+    $resource_link->primaryResourceLinkId = NULL;
+    $resource_link->shareApproved = NULL;
     $resource_link->save();
-  }
+}
 #
 ### Redirect to shares list page
 #
-  header('Location: index.php');
-
+header('Location: index.php');
 ?>

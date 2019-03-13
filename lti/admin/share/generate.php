@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2013  Stephen P Vickers
+ *  Copyright (C) 2019  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,49 +18,44 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *  Contact: stephen@spvsoftwareproducts.com
- *
- *  Version history:
- *    1.0.00   4-Jul-12  Initial release
- *    1.1.00  10-Feb-13  Updated for LTI_Tool_Provider 2.3 class
- *    1.2.00  27-Aug-18  Updated to include support for MySQLi
-*/
+ */
 
 ###
 ###  Generate a new share key
 ###
 
-  require_once('../../../../includes/inc_global.php');
+use ceLTIc\LTI\ResourceLink;
+use ceLTIc\LTI\ResourceLinkShareKey;
 
-  require_once('../../lib/LTI_Tool_Provider.php');
-  require_once('../../setting.php');
+require_once('../../../../includes/inc_global.php');
+
+require_once('../../setting.php');
 
 #
 ### Get query parameters
 #
-  $life = mysql_real_escape_string(fetch_GET('life', 1));
-  $param = mysql_real_escape_string(fetch_GET('auto_approve'));
+$life = $DB->escape_str($DB->getConnection(), fetch_GET('life', 1));
+$param = $DB->escape_str($DB->getConnection(), fetch_GET('auto_approve'));
 #
 ### Initialise LTI Resource Link
 #
-  $consumer = new LTI_Tool_Consumer($_source_id, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
-  $resource_link = new LTI_Resource_Link($consumer, $_module_code);
+$resource_link = ResourceLink::fromConsumer($consumer, $_module_code);
 #
 ### Generate new key value
 #
-  $length = $resource_link->getSetting('custom_share_key_length');
-  if (!$length) {
+$length = $resource_link->getSetting('custom_share_key_length');
+if (!$length) {
     $length = SHARE_KEY_LENGTH;
-  }
-  $auto_approve = !empty($param);
-  $share_key = new LTI_Resource_Link_Share_Key($resource_link);
-  $share_key->length = $length;
-  $share_key->life = $life;
-  $share_key->auto_approve = $auto_approve;
-  $share_key->save();
-  $id = $share_key->getId();
+}
+$auto_approve = !empty($param);
+$share_key = new ResourceLinkShareKey($resource_link);
+$share_key->length = $length;
+$share_key->life = $life;
+$share_key->autoApprove = $auto_approve;
+$share_key->save();
+$id = $share_key->getId();
 #
 ### Return key value
 #
-  echo $id;
-
+echo $id;
 ?>

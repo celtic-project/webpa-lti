@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2013  Stephen P Vickers
+ *  Copyright (C) 2019  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,19 +18,26 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *  Contact: stephen@spvsoftwareproducts.com
- *
- *  Version history:
- *    1.0.00   4-Jul-12  Initial release
- *    1.1.00  10-Feb-13
-*/
+ */
 
 ###
 ###  Define constants for options
 ###
 
-  define('LTI_MODULE_NAME', 'lti');
-  define('ALLOW_SHARING', TRUE);
-  define('SHARE_KEY_LENGTH', 10);
-  define('DEFAULT_EMAIL', '');
+define('LTI_MODULE_NAME', 'lti');
+define('ALLOW_SHARING', TRUE);
+define('SHARE_KEY_LENGTH', 10);
+define('DEFAULT_EMAIL', '');
 
+###
+###  Set API handlers for services
+###
+
+use ceLTIc\LTI\ApiHook\ApiHook;
+use ceLTIc\LTI\ToolProvider;
+use ceLTIc\LTI\ResourceLink;
+
+ToolProvider::registerApiHook(ApiHook::$USER_ID_HOOK, 'canvas', 'ceLTIc\LTI\ApiHook\canvas\CanvasApiToolProvider');
+ResourceLink::registerApiHook(ApiHook::$MEMBERSHIPS_SERVICE_HOOK, 'canvas', 'ceLTIc\LTI\ApiHook\canvas\CanvasApiResourceLink');
+ResourceLink::registerApiHook(ApiHook::$MEMBERSHIPS_SERVICE_HOOK, 'moodle', 'ceLTIc\LTI\ApiHook\moodle\MoodleApiResourceLink');
 ?>
