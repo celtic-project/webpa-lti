@@ -534,8 +534,8 @@ $UI->content_start();
 #
 ### Save changes to the user session pending confirmation of update
 #
-                  $_SESSION['_to_add'] = cleanUsers($to_add);
-                  $_SESSION['_to_update'] = cleanUsers($to_update);
+                  $_SESSION['_to_add'] = $to_add;
+                  $_SESSION['_to_update'] = $to_update;
                   $_SESSION['_to_update_role'] = $to_update_role;
                   $_SESSION['_to_delete'] = $users;
                   $_SESSION['_group_changes'] = $group_changes;
@@ -704,16 +704,4 @@ function displaySets($title, $resource_link, $group_handler, $sets, $action)
     }
 }
 
-#
-### Function to serialise user objects for future use
-#
-
-function cleanUsers($users)
-{
-    $users2 = array();
-    foreach ($users as $user) {
-        $users2[] = serialize($user);
-    }
-    return $users2;
-}
 ?>

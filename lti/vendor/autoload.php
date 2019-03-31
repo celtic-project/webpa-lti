@@ -34,8 +34,8 @@ spl_autoload_register(function ($class) {
     $file = $base_dir . preg_replace('/[\\\\\/]/', DIRECTORY_SEPARATOR, $class) . '.php';
 
     // Update location if class requested is from the LTI class library
-    $file = str_replace(DIRECTORY_SEPARATOR . 'celtic' . DIRECTORY_SEPARATOR . 'lti' . DIRECTORY_SEPARATOR,
-        DIRECTORY_SEPARATOR . 'cwltic' . DIRECTORY_SEPARATOR . 'lti' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, $file);
+    $file = str_replace(DIRECTORY_SEPARATOR . 'ceLTIc' . DIRECTORY_SEPARATOR . 'LTI' . DIRECTORY_SEPARATOR,
+        DIRECTORY_SEPARATOR . 'celtic' . DIRECTORY_SEPARATOR . 'lti' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, $file);
 
     // if the file exists, require it
     if (file_exists($file)) {
