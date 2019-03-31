@@ -1,6 +1,6 @@
 {
   "name": "celtic/webpa-lti",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "WebPA module to add LTI support",
   "type": "project",
   "license": "GPL-3.0",
