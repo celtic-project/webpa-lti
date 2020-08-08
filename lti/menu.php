@@ -28,8 +28,8 @@ use ceLTIc\LTI\DataConnector\DataConnector;
 use ceLTIc\LTI\ToolConsumer;
 use ceLTIc\LTI\ResourceLink;
 
-require_once('vendor/autoload.php');
-require_once('setting.php');
+require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/setting.php');
 
 global $DB, $dataconnector, $consumer, $user_resource_link;
 
