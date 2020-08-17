@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ $param = $DB->escape_str(fetch_GET('auto_approve'));
 #
 ### Initialise LTI Resource Link
 #
-$resource_link = ResourceLink::fromConsumer($consumer, $_module_code);
+$resource_link = ResourceLink::fromPlatform($lti_platform, $_module_code);
 #
 ### Generate new key value
 #

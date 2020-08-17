@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,19 +36,19 @@ $resource_link_id = fetch_GET('rlid');
 #
 ### Check parameters
 #
-$ok = FALSE;
-$approve = NULL;
+$ok = false;
+$approve = null;
 if (!empty($do) && !empty($resource_link_id)) {
     if ($do == 'Approve') {
-        $approve = TRUE;
+        $approve = true;
     } else if ($do == 'Suspend') {
-        $approve = FALSE;
+        $approve = false;
     }
     if (!is_null($approve)) {
 #
 ### Update status
 #
-        $resource_link = ResourceLink::fromRecordId($resource_link_id, $consumer->getDataConnector());
+        $resource_link = ResourceLink::fromRecordId($resource_link_id, $lti_platform->getDataConnector());
         $resource_link->shareApproved = $approve;
         $ok = $resource_link->save();
     }
@@ -57,6 +57,6 @@ if (!empty($do) && !empty($resource_link_id)) {
 ### Return HTTP error if request not processed
 #
 if (!$ok) {
-    header("Status: 404 Not Found", TRUE, 404);
+    header("Status: 404 Not Found", true, 404);
 }
 ?>

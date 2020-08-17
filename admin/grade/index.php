@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,13 @@
  */
 
 ###
-###  Page to allow grades for an assessment to be passed to the tool consumer
+###  Page to allow grades for an assessment to be passed to the platform
 ###
 
 use ceLTIc\LTI\ResourceLink;
 use ceLTIc\LTI\Outcome;
 
-require_once("../../../../includes/inc_global.php");
+require_once('../../../../includes/inc_global.php');
 require_once(DOC__ROOT . 'includes/classes/class_simple_object_iterator.php');
 require_once(DOC__ROOT . 'includes/functions/lib_array_functions.php');
 require_once(DOC__ROOT . 'includes/classes/class_assessment.php');
@@ -56,21 +56,21 @@ $UI->content_start();
 ?>
 <div class="content_box">
   <?php
-  $resource_link = ResourceLink::fromConsumer($consumer, $_module_code);
+  $resource_link = ResourceLink::fromPlatform($lti_platform, $_module_code);
   if ($resource_link->hasOutcomesService()) {
       $assessment_id = fetch_GET('a');
       $marking_date = fetch_GET('md');
       if ($assessment_id && $marking_date) {
-          $ok = TRUE;
+          $ok = true;
           $assessment = new Assessment($DB);
           if (!$assessment->load($assessment_id)) {
-              $ok = FALSE;
+              $ok = false;
               error_log('Error: The requested assessment could not be loaded.');
           }
           if ($ok) {
               $marking_params = $assessment->get_marking_params($marking_date);
               if (!$marking_params) {
-                  $ok = FALSE;
+                  $ok = false;
                   error_log('Error: The requested marksheet could not be loaded.');
               }
           }
@@ -78,7 +78,7 @@ $UI->content_start();
               $groups_and_marks = $assessment->get_group_marks();
               $algorithm = AlgorithmFactory::get_algorithm($marking_params['algorithm']);
               if (!$algorithm) {
-                  $ok = FALSE;
+                  $ok = false;
                   error_log('Error: The requested algorithm could not be loaded.');
               }
           }
@@ -91,30 +91,26 @@ $UI->content_start();
               $users = $CIS->get_user(array_keys($grades));
               $user_grades = array();
               foreach ($users as $user) {
-                  if ($user['source_id'] == $_source_id) {
-                      $user_grades[$user['username']] = $grades[$user['user_id']];
-                  }
+                  $user_grades[$user['username']] = $grades[$user['user_id']];
               }
-              $users = $resource_link->getUserResultSourcedIDs();
+              $lti_users = $resource_link->getUserResultSourcedIDs();
               $sent = 0;
               $errors = 0;
-              foreach ($users as $user) {
-                  $sent++;
+              foreach ($lti_users as $lti_user) {
                   $outcome = new Outcome();
-                  if (isset($user_grades[$user->getId()])) {
-                      $outcome->setValue($user_grades[$user->getId()]);
+                  if (isset($user_grades[$lti_user->getId()])) {
+                      $sent++;
+                      $outcome->setValue($user_grades[$lti_user->getId()]);
                       if ($marking_params['grading'] == 'grade_af') {
                           $outcome->type = 'letterafplus';
                       } else {
                           $outcome->type = 'percentage';
                       }
                       $outcome->status = 'final';
-                      $err = !$resource_link->doOutcomesService(ResourceLink::EXT_WRITE, $outcome, $user);
-                  } else {
-                      $err = !$resource_link->doOutcomesService(ResourceLink::EXT_DELETE, $outcome, $user);
-                  }
-                  if ($err) {
-                      $errors++;
+                      $err = !$resource_link->doOutcomesService(ResourceLink::EXT_WRITE, $outcome, $lti_user);
+                      if ($err) {
+                          $errors++;
+                      }
                   }
               }
 #

@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 use ceLTIc\LTI\ResourceLink;
 
-require_once("../../../../includes/inc_global.php");
+require_once('../../../../includes/inc_global.php');
 
 #
 ### Option only available for tutors
@@ -79,7 +79,7 @@ if ($can_edit) {
         <?php
     }
 
-    $resource_link = ResourceLink::fromConsumer($consumer, $_module_code);
+    $resource_link = ResourceLink::fromPlatform($lti_platform, $_module_code);
 
     $shares = $resource_link->getShares();
     ?>

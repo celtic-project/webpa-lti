@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@
 ###
 
 use ceLTIc\LTI\DataConnector\DataConnector;
-use ceLTIc\LTI\ToolConsumer;
+use ceLTIc\LTI\Platform;
 use ceLTIc\LTI\ResourceLink;
 
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/setting.php');
 
-global $DB, $dataconnector, $consumer, $user_resource_link;
+global $DB, $dataconnector, $lti_platform, $user_resource_link;
 
 #
 ### Check if this is an LTI connection
@@ -39,8 +39,8 @@ global $DB, $dataconnector, $consumer, $user_resource_link;
 $DB->open();
 $dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
 if ($_source_id) {
-    $consumer = new ToolConsumer($_SESSION['_user_source_id'], $dataconnector);
-    $user_resource_link = ResourceLink::fromConsumer($consumer, $_SESSION['_user_context_id']);
+    $lti_platform = Platform::fromConsumerKey($_SESSION['_user_source_id'], $dataconnector);
+    $user_resource_link = ResourceLink::fromPlatform($lti_platform, $_SESSION['_user_context_id']);
     if ($this->_user->is_staff() && $_source_id) {
 #
 ### Update upload option if Memberships service is available

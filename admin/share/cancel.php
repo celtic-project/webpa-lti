@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,12 +39,12 @@ if (!empty($resource_link_id)) {
 #
 ### Initialise LTI Resource Link
 #
-    $resource_link = ResourceLink::fromRecordId($resource_link_id, $consumer->getDataConnector());
+    $resource_link = ResourceLink::fromRecordId($resource_link_id, $lti_platform->getDataConnector());
 #
 ### Cancel share
 #
-    $resource_link->primaryResourceLinkId = NULL;
-    $resource_link->shareApproved = NULL;
+    $resource_link->primaryResourceLinkId = null;
+    $resource_link->shareApproved = null;
     $resource_link->save();
 }
 #

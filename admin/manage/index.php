@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@
 ###  Page to update list of enrolled users
 ###
 
-use ceLTIc\LTI\ToolProvider;
+use ceLTIc\LTI\Tool;
 
 require_once('../../../../includes/inc_global.php');
 require_once(DOC__ROOT . 'includes/functions/lib_string_functions.php');
 
-require_once('../../vendor/autoload.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/vendor/autoload.php');
 
 #
 ### Option only available for tutors
@@ -61,7 +61,7 @@ $UI->content_start();
   if ($resource_link->hasMembershipsService()) {
       $group_handler = new GroupHandler();
       /*
-        Structure for mapping Tool Consumer IDs to WebPA IDs for groups:
+        Structure for mapping Platform IDs to WebPA IDs for groups:
         [tc_set_id] - pa_set_id, groups(tc_group_id, pa_group_id)
        */
       $settings = unserialize($resource_link->getSetting('last.sync'));
@@ -75,10 +75,10 @@ $UI->content_start();
 #
       $collections = $group_handler->get_module_collections($_module_id);
       foreach ($groups_map as $set_id => $set) {
-          $exists = FALSE;
+          $exists = false;
           foreach ($collections as $collection) {
               if ($collection['collection_id'] == $set['id']) {
-                  $exists = TRUE;
+                  $exists = true;
                   break;
               }
           }
@@ -88,10 +88,10 @@ $UI->content_start();
               $collection = $group_handler->get_collection($set['id']);
               $groups = $collection->get_groups_array();
               foreach ($set['groups'] as $tc_group_id => $pa_group_id) {
-                  $exists = FALSE;
+                  $exists = false;
                   foreach ($groups as $pa_group) {
                       if ($pa_group['group_id'] == $pa_group_id) {
-                          $exists = TRUE;
+                          $exists = true;
                           break;
                       }
                   }
@@ -116,13 +116,13 @@ $UI->content_start();
               foreach ($users as $user) {
                   $user = unserialize($user);
                   $new_user = new User('', '');
-                  $user_row = $CIS->get_user_for_username($user->getId(ToolProvider::ID_SCOPE_ID_ONLY), $_user_source_id);
+                  $user_row = $CIS->get_user_for_username($user->getId(Tool::ID_SCOPE_ID_ONLY), $_user_source_id);
                   if ($user_row) {
-                      $exists = TRUE;
+                      $exists = true;
                       $new_user->load_from_row($user_row);
                   } else {
-                      $exists = FALSE;
-                      $new_user->update_username($user->getId(ToolProvider::ID_SCOPE_ID_ONLY));
+                      $exists = false;
+                      $new_user->update_username($user->getId(Tool::ID_SCOPE_ID_ONLY));
                       $new_user->update_source_id($_user_source_id);
                   }
                   $new_user->forename = $user->firstname;
@@ -196,7 +196,7 @@ $UI->content_start();
 ### Check for users to unenrol
 #
           if (isset($_SESSION['_to_delete'])) {
-              if (strpos(fetch_POST('do'), 'without') === FALSE) {
+              if (strpos(fetch_POST('do'), 'without') === false) {
                   $users = $_SESSION['_to_delete'];
                   foreach ($users as $user) {
                       $sql = "DELETE FROM " . APP__DB_TABLE_PREFIX . "user_module WHERE user_id = {$user['user_id']} " .
@@ -297,9 +297,9 @@ $UI->content_start();
 #
 ### Fetch latest enrolment list from source
 #
-          $consumer->defaultEmail = DEFAULT_EMAIL;
-          $members = $resource_link->doMembershipsService(TRUE);
-          if ($members !== FALSE) {
+          $lti_platform->defaultEmail = DEFAULT_EMAIL;
+          $members = $resource_link->getMemberships(true);
+          if ($members !== false) {
               $query = 'SELECT u.username, u.user_id, u.forename, u.lastname, u.email, um.user_type FROM ' .
                   APP__DB_TABLE_PREFIX . 'user u INNER JOIN ' . APP__DB_TABLE_PREFIX . 'user_module um ON u.user_id = um.user_id ' .
                   "WHERE (um.module_id = {$_module_id}) AND (source_id = '{$_user_source_id}')";
@@ -310,16 +310,16 @@ $UI->content_start();
               /*
                 Structure for capturing changes to group set data:
                 ['set']
-                ['add'] - id, title
-                ['update'] - id, title
-                ['delete'] - id
+                ..['add'] - id, title
+                ..['update'] - id, title
+                ..['delete'] - id
                 ['group']
-                ['add'] - set_id, id, title
-                ['update'] - set_id, id, title
-                ['delete'] - set_id, id
+                ..['add'] - set_id, id, title
+                ..['update'] - set_id, id, title
+                ..['delete'] - set_id, id
                 ['member']
-                ['add'] - set_id, group_id, tc_user_id, pa_user_id
-                ['delete'] - set_id, pa_group_id, pa_user_id
+                ..['add'] - set_id, group_id, tc_user_id, pa_user_id
+                ..['delete'] - set_id, pa_group_id, pa_user_id
                */
               $group_changes['set']['delete'] = array_keys($groups_map);
               foreach ($resource_link->groupSets as $set_id => $set) {
@@ -329,7 +329,7 @@ $UI->content_start();
                           $group_changes['group']['add'][] = array('set_id' => $set_id, 'id' => $group_id, 'title' => $resource_link->groups[$group_id]['title']);
                       }
                       foreach ($members as $user) {
-                          $user_id = NULL;
+                          $user_id = null;
                           if (isset($users[$user->getId()])) {
                               $user_id = $users[$user->getId()]['user_id'];
                           }
@@ -371,13 +371,13 @@ $UI->content_start();
                       $collection_member_rows = $collection->get_member_rows();
                       foreach ($members as $user) {
                           if ($user->isLearner()) {
-                              $user_id = NULL;
+                              $user_id = null;
                               if (isset($users[$user->getId()])) {
                                   $user_id = $users[$user->getId()]['user_id'];
                               }
                               foreach ($user->groups as $group) {
-                                  if (isset($resource_link->groups[$group]['set'])) {
-                                      $in_group = NULL;
+                                  if (isset($resource_link->groups[$group]['set']) && ($resource_link->groups[$group]['set'] === $set_id)) {
+                                      $in_group = null;
                                       if (!is_null($user_id) && isset($groups_map[$set_id]['groups'][$group]) && is_array($collection_member_rows)) {
                                           $pa_group_id = $groups_map[$set_id]['groups'][$group];
                                           $i = 0;
@@ -404,11 +404,11 @@ $UI->content_start();
                       }
                       unset($group_changes['set']['delete'][array_search($set_id, $group_changes['set']['delete'])]);
                       foreach ($collection_member_rows as $row) {
-                          $deleted = FALSE;
+                          $deleted = false;
                           if (isset($group_changes['group']['delete'])) {
                               foreach ($group_changes['group']['delete'] as $group) {
                                   if ($group['id'] == $row['group_id']) {
-                                      $deleted = TRUE;
+                                      $deleted = true;
                                       break;
                                   }
                               }
@@ -428,22 +428,24 @@ $UI->content_start();
               $to_update = array();
               $to_update_role = array();
               foreach ($members as $user) {
-                  if (!isset($users[$user->getId(ToolProvider::ID_SCOPE_ID_ONLY)])) {
-                      $to_add[] = serialize($user);
-                  } else {
-                      $old_user = $users[$user->getId(ToolProvider::ID_SCOPE_ID_ONLY)];
-                      $changed = (($old_user['forename'] != $user->firstname) ||
-                          ($old_user['lastname'] != $user->lastname) ||
-                          ($old_user['email'] != $user->email));
-                      if ($changed) {
-                          $to_update[$old_user['user_id']] = serialize($user);
+                  if ($user->isStaff() || $user->isLearner()) {
+                      if (!isset($users[$user->getId(Tool::ID_SCOPE_ID_ONLY)])) {
+                          $to_add[] = serialize($user);
+                      } else {
+                          $old_user = $users[$user->getId(Tool::ID_SCOPE_ID_ONLY)];
+                          $changed = (($old_user['forename'] != $user->firstname) ||
+                              ($old_user['lastname'] != $user->lastname) ||
+                              ($old_user['email'] != $user->email));
+                          if ($changed) {
+                              $to_update[$old_user['user_id']] = serialize($user);
+                          }
+                          $changed = (($old_user['user_type'] == APP__USER_TYPE_TUTOR) && (!$user->isStaff()) ||
+                              ($old_user['user_type'] == APP__USER_TYPE_STUDENT) && ($user->isStaff()));
+                          if ($changed) {
+                              $to_update_role[$old_user['user_id']] = serialize($user);
+                          }
+                          unset($users[$user->getId(Tool::ID_SCOPE_ID_ONLY)]);
                       }
-                      $changed = (($old_user['user_type'] == APP__USER_TYPE_TUTOR) && (!$user->isStaff()) ||
-                          ($old_user['user_type'] == APP__USER_TYPE_STUDENT) && ($user->isStaff()));
-                      if ($changed) {
-                          $to_update_role[$old_user['user_id']] = serialize($user);
-                      }
-                      unset($users[$user->getId(ToolProvider::ID_SCOPE_ID_ONLY)]);
                   }
               }
               ?>
@@ -513,7 +515,7 @@ $UI->content_start();
                     displayUsers('Users to be added', $to_add);
                     displayUsers('Users to be updated', $to_update);
                     displayUsers('Users changing role', $to_update_role);
-                    displayUsers('Users to be deleted', $users, FALSE);
+                    displayUsers('Users to be deleted', $users, false);
                     displaySets('Select any new collections to be added', $resource_link, $group_handler, $sets_add, 'add');
                     displaySets('Existing collections to be updated', $resource_link, $group_handler, $sets_update, 'update');
                     displaySets('Existing collections to be deleted', $resource_link, $group_handler, $sets_delete, 'delete');
@@ -612,7 +614,7 @@ $UI->content_end();
 ### Function to display a list of users
 #
 
-function displayUsers($title, $users, $isObject = TRUE)
+function displayUsers($title, $users, $isObject = true)
 {
 
     if (count($users) > 0) {
@@ -630,7 +632,7 @@ function displayUsers($title, $users, $isObject = TRUE)
                     $role = 'student';
                 }
                 echo '<tr>';
-                echo '<td class="obj_info_text" style="width: 10em;">' . $user->getId(ToolProvider::ID_SCOPE_ID_ONLY) . '</td>';
+                echo '<td class="obj_info_text" style="width: 10em;">' . $user->getId(Tool::ID_SCOPE_ID_ONLY) . '</td>';
                 echo '<td class="obj_info_text">' . $user->fullname . '</td>';
                 echo '<td class="obj_info_text" style="width: 10em;">' . $role . '</td>';
                 echo "</tr>\n";
@@ -703,5 +705,4 @@ function displaySets($title, $resource_link, $group_handler, $sets, $action)
         echo "</div>\n";
     }
 }
-
 ?>

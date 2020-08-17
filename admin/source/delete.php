@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
 ###  Page to delete a source
 ###
 
-use ceLTIc\LTI\ToolConsumer;
+use ceLTIc\LTI\Platform;
 
-require_once("../../../../includes/inc_global.php");
+require_once('../../../../includes/inc_global.php');
 require_once(DOC__ROOT . 'includes/classes/class_module.php');
 require_once(DOC__ROOT . 'includes/classes/class_user.php');
 
@@ -51,7 +51,7 @@ $UI->help_link = '?q=node/237';
 #
 ### Delete modules for source
 #
-$modules = $CIS->get_user_modules(NULL, NULL, 'id', $source);
+$modules = $CIS->get_user_modules(null, null, 'id', $source);
 if ($modules) {
     foreach ($modules as $id => $module) {
         $mod = new Module('', '');
@@ -77,9 +77,9 @@ if ($users) {
 #
 ### Delete source
 #
-$sScreenMsg = "<p>The source has been deleted ($source).</p>";
-$consumer2 = new ToolConsumer($source, $dataconnector);
-$consumer2->delete();
+$sScreenMsg = "<p>The source has been deleted ($platform->name).</p>";
+$platform = Platform::fromConsumerKey($source, $dataconnector);
+$platform->delete();
 #
 ### Display page
 #

@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 ###
 
 use ceLTIc\LTI\DataConnector\DataConnector;
-use ceLTIc\LTI\ToolProvider;
+use ceLTIc\LTI\Tool;
 
-require_once("../../../includes/inc_global.php");
+require_once('../../../includes/inc_global.php');
 
 #
 ### Option only available for administrators
@@ -40,9 +40,9 @@ if (!check_user($_user, APP__USER_TYPE_ADMIN)) {
 ### Check is a source has been selected
 #
 $sScreenMsg = '';
-$source_id = fetch_POST('source_id', NULL);
+$source_id = fetch_POST('source_id', null);
 if (!is_null($source_id)) {
-    $modules = $CIS->get_user_modules(NULL, NULL, 'name', $source_id);
+    $modules = $CIS->get_user_modules(null, null, 'name', $source_id);
     if (is_array($modules)) {
         $_SESSION['_source_id'] = $source_id;
         $_SESSION['_user_source_id'] = $source_id;
@@ -87,14 +87,13 @@ $UI->content_start();
 #
 ### Get list of sources
 #
-//  $tool_provider = Tool_Provider::(NULL, array($DB->getConnection(), APP__DB_TABLE_PREFIX));
-      if (empty($consumer)) {
+      if (empty($lti_platform)) {
           $data_connector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
       } else {
-          $data_connector = $consumer->getDataConnector();
+          $data_connector = $lti_platform->getDataConnector();
       }
-      $tool_provider = new ToolProvider($data_connector);
-      $sources = $tool_provider->getConsumers();
+      $tool = new Tool($data_connector);
+      $sources = $tool->getPlatforms();
 #
 ### Display table of sources
 #
@@ -111,7 +110,7 @@ $UI->content_start();
               echo("  <tr>\n");
               echo("    <td><input type=\"radio\" name=\"source_id\" id=\"source_{$i}\" value=\"{$source->getKey()}\"{$checked_str} /></td>\n");
               echo("    <td><label style=\"font-weight: normal;\" for=\"source_{$i}\">");
-              echo("{$source->name} ({$source->getKey()})");
+              echo($source->name);
               echo("</label></td>\n  </tr>\n");
           }
       } else {

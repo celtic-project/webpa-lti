@@ -1,7 +1,7 @@
 <?php
 /*
  *  webpa-lti - WebPA module to add LTI support
- *  Copyright (C) 2019  Stephen P Vickers
+ *  Copyright (C) 2020  Stephen P Vickers
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,23 +21,17 @@
  */
 
 ###
-###  Define constants for options
+###  Generate the public key in JWKS format
 ###
 
-define('LTI_MODULE_NAME', 'lti');
-define('ALLOW_SHARING', TRUE);
-define('SHARE_KEY_LENGTH', 10);
-define('DEFAULT_EMAIL', '');
+use ceLTIc\LTI\Jwt\Jwt;
 
-###
-###  Set API handlers for services
-###
+require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/setting.php');
 
-use ceLTIc\LTI\ApiHook\ApiHook;
-use ceLTIc\LTI\ToolProvider;
-use ceLTIc\LTI\ResourceLink;
+$jwt = Jwt::getJwtClient();
+$keys = $jwt::getJWKS(LTI_PRIVATE_KEY, LTI_SIGNATURE_METHOD, LTI_KID);
 
-ToolProvider::registerApiHook(ApiHook::$USER_ID_HOOK, 'canvas', 'ceLTIc\LTI\ApiHook\canvas\CanvasApiToolProvider');
-ResourceLink::registerApiHook(ApiHook::$MEMBERSHIPS_SERVICE_HOOK, 'canvas', 'ceLTIc\LTI\ApiHook\canvas\CanvasApiResourceLink');
-ResourceLink::registerApiHook(ApiHook::$MEMBERSHIPS_SERVICE_HOOK, 'moodle', 'ceLTIc\LTI\ApiHook\moodle\MoodleApiResourceLink');
+header('Content-type: application/json');
+echo json_encode($keys);
 ?>
