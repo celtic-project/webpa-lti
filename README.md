@@ -13,12 +13,12 @@ documentation and a convenient zip file for installing each release.
 | --- | --- |
 | **Lead Developer(s)** | Stephen P. Vickers |
 | **Development Status** | Production/Stable |
-| **License** | GNU General Public License (GPL) |
+| **License** | GNU General Public License v3.0 |
 | **Programming Language** | PHP |
 
 ## Documentation
 
-Available at http://www.spvsoftwareproducts.com/php/webpa-lti/
+Available at https://github.com/celtic-project/webpa-lti/wiki
 
 ## Installation Zip Files
 
