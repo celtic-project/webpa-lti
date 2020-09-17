@@ -77,8 +77,8 @@ if ($users) {
 #
 ### Delete source
 #
-$sScreenMsg = "<p>The source has been deleted ($platform->name).</p>";
 $platform = Platform::fromConsumerKey($source, $dataconnector);
+$sScreenMsg = "<p>The source has been deleted ($platform->name).</p>";
 $platform->delete();
 #
 ### Display page
