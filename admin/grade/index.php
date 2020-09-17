@@ -27,11 +27,46 @@
 use ceLTIc\LTI\ResourceLink;
 use ceLTIc\LTI\Outcome;
 
-require_once('../../../../includes/inc_global.php');
-require_once(DOC__ROOT . 'includes/classes/class_simple_object_iterator.php');
-require_once(DOC__ROOT . 'includes/functions/lib_array_functions.php');
-require_once(DOC__ROOT . 'includes/classes/class_assessment.php');
-require_once(DOC__ROOT . 'includes/classes/class_algorithm_factory.php');
+require_once('../../includes.php');
+
+if (file_exists(DOC__ROOT . 'includes/classes/class_simple_object_iterator.php')) {
+    require_once(DOC__ROOT . 'includes/classes/class_simple_object_iterator.php');
+} else {
+
+    class SimpleObjectIterator extends \WebPA\includes\classes\SimpleObjectIterator
+    {
+
+    }
+
+}
+if (file_exists(DOC__ROOT . 'includes/functions/lib_array_functions.php')) {
+    require_once(DOC__ROOT . 'includes/functions/lib_array_functions.php');
+}
+if (file_exists(DOC__ROOT . 'includes/classes/class_assessment.php')) {
+    require_once(DOC__ROOT . 'includes/classes/class_assessment.php');
+} else {
+
+    class Assessment extends \WebPA\includes\classes\Assessment
+    {
+
+    }
+
+}
+if (file_exists(DOC__ROOT . 'includes/classes/class_algorithm_factory.php')) {
+    require_once(DOC__ROOT . 'includes/classes/class_algorithm_factory.php');
+} else {
+
+    class AlgorithmFactory extends \WebPA\includes\classes\AlgorithmFactory
+    {
+
+    }
+
+    class ResultHandler extends \WebPA\includes\classes\ResultHandler
+    {
+
+    }
+
+}
 
 #
 ### Option only available for tutors
@@ -192,9 +227,9 @@ $UI->content_start();
           if (!$assessments) {
               ?>
               <p>You do not have any completed, marked assessments.</p>
-              <?php
-          } else {
-              ?>
+                <?php
+            } else {
+                ?>
               <div class="obj_list">
                 <?php
 #
@@ -266,9 +301,9 @@ $UI->content_start();
                       }
                       ?>
                     </div>
-                    <?php
-                }
-                ?>
+                <?php
+            }
+            ?>
               </div>
               <?php
           }
@@ -280,9 +315,9 @@ $UI->content_start();
         Sorry, this source does not support the outcomes service.
       </p>
 
-      <?php
-  }
-  ?>
+    <?php
+}
+?>
 </div>
 <?php
 $UI->content_end();

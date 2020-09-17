@@ -26,7 +26,7 @@
 
 use ceLTIc\LTI\ResourceLink;
 
-require_once('../../../../includes/inc_global.php');
+require_once('../../includes.php');
 
 #
 ### Option only available for tutors

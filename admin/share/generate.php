@@ -27,7 +27,7 @@
 use ceLTIc\LTI\ResourceLink;
 use ceLTIc\LTI\ResourceLinkShareKey;
 
-require_once('../../../../includes/inc_global.php');
+require_once('../../includes.php');
 
 require_once('../../setting.php');
 

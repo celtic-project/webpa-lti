@@ -26,9 +26,30 @@
 
 use ceLTIc\LTI\Platform;
 
-require_once('../../../../includes/inc_global.php');
-require_once(DOC__ROOT . 'includes/classes/class_module.php');
-require_once(DOC__ROOT . 'includes/classes/class_user.php');
+require_once('../../includes.php');
+
+if (file_exists(DOC__ROOT . 'includes/classes/class_module.php')) {
+    require_once(DOC__ROOT . 'includes/classes/class_module.php');
+} else {
+
+    class Module extends \WebPA\includes\classes\Module
+    {
+
+    }
+
+}
+if (file_exists(DOC__ROOT . 'includes/classes/class_user.php')) {
+    require_once(DOC__ROOT . 'includes/classes/class_user.php');
+} else {
+
+    class User extends \WebPA\includes\classes\User
+    {
+
+    }
+
+}
+
+require_once('../../includes.php');
 
 #
 ### Option only available for administrators

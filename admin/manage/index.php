@@ -26,8 +26,18 @@
 
 use ceLTIc\LTI\Tool;
 
-require_once('../../../../includes/inc_global.php');
-require_once(DOC__ROOT . 'includes/functions/lib_string_functions.php');
+require_once('../../includes.php');
+
+if (file_exists(DOC__ROOT . 'includes/functions/lib_string_functions.php')) {
+    require_once(DOC__ROOT . 'includes/functions/lib_string_functions.php');
+} else {
+
+    function str_random($length = 8, $valid_chars = null)
+    {
+        return \WebPA\includes\functions\StringFunctions::str_random($length, $valid_chars);
+    }
+
+}
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/vendor/autoload.php');
 

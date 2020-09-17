@@ -33,34 +33,39 @@ require_once(__DIR__ . '/setting.php');
 
 global $DB, $dataconnector, $lti_platform, $user_resource_link;
 
+if (!property_exists($this, 'sourceId')) { // Prior to 3.1.0 release
+    $this->sourceId = $_source_id;
+    $this->user = $this->_user;
+}
+
 #
 ### Check if this is an LTI connection
 #
 $DB->open();
 $dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
-if ($_source_id) {
+if ($this->sourceId) {
     $lti_platform = Platform::fromConsumerKey($_SESSION['_user_source_id'], $dataconnector);
     $user_resource_link = ResourceLink::fromPlatform($lti_platform, $_SESSION['_user_context_id']);
-    if ($this->_user->is_staff() && $_source_id) {
+    if ($this->user->is_staff()) {
 #
 ### Update upload option if Memberships service is available
 #
         $menu = $this->get_menu('Admin');
         if ($user_resource_link->hasMembershipsService()) {
-            $menu['sync data'] = APP__WWW . "/mod/$mod/admin/manage/";
+            $menu['sync data'] = APP__WWW . "/mod/{$mod}/admin/manage/";
         }
         unset($menu['upload data']);
 #
 ### Add upload option if Outcomes service is available
 #
         if ($user_resource_link->hasOutcomesService()) {
-            $menu['transfer grades'] = APP__WWW . "/mod/$mod/admin/grade/";
+            $menu['transfer grades'] = APP__WWW . "/mod/{$mod}/admin/grade/";
         }
 #
 ### Add sharing option if enabled
 #
-        if (ALLOW_SHARING && ($_source_id == $_SESSION['_user_source_id'])) {
-            $menu['sharing'] = APP__WWW . "/mod/$mod/admin/share/";
+        if (ALLOW_SHARING && ($this->sourceId == $_SESSION['_user_source_id'])) {
+            $menu['sharing'] = APP__WWW . "/mod/{$mod}/admin/share/";
         }
         $this->set_menu('Admin', $menu);
     }
@@ -69,10 +74,10 @@ if ($_source_id) {
 #
 ### Add sources menu for administrators
 #
-if ($this->_user->is_admin()) {
+if ($this->user->is_admin()) {
     $this->set_menu('LTI Admin',
-        array('lti sources' => APP__WWW . "/mod/$mod/admin/source/",
-            'change source' => APP__WWW . "/mod/$mod/admin/source.php"));
+        array('lti sources' => APP__WWW . "/mod/{$mod}/admin/source/",
+            'change source' => APP__WWW . "/mod/{$mod}/admin/source.php"));
 } else {
 #
 ### Add message to logout option

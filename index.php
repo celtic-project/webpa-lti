@@ -26,8 +26,27 @@
 
 use ceLTIc\LTI\DataConnector\DataConnector;
 
-require_once('../../includes/inc_global.php');
-require_once(DOC__ROOT . 'includes/classes/class_authenticator.php');
+require_once('includes.php');
+
+if (file_exists(DOC__ROOT . 'includes/classes/class_authenticator.php')) {
+    require_once(DOC__ROOT . 'includes/classes/class_authenticator.php');
+} else {
+
+    class Authenticator extends \WebPA\includes\classes\Authenticator
+    {
+
+        function __construct($username = NULL, $password = NULL)
+        {
+            global $CIS;
+
+            parent::__construct($CIS, $username, $password);
+        }
+
+    }
+
+}
+
+require_once('includes.php');
 
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/setting.php');

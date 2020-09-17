@@ -27,7 +27,7 @@
 use ceLTIc\LTI\Platform;
 use ceLTIc\LTI\Util;
 
-require_once('../../../../includes/inc_global.php');
+require_once('../../includes.php');
 
 #
 ### Option only available for administrators

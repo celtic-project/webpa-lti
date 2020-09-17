@@ -27,7 +27,7 @@
 use ceLTIc\LTI\DataConnector\DataConnector;
 use ceLTIc\LTI\Tool;
 
-require_once('../../../includes/inc_global.php');
+require_once('../includes.php');
 
 #
 ### Option only available for administrators
