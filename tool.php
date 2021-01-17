@@ -25,7 +25,9 @@
 ###
 
 use ceLTIc\LTI\Tool;
+use ceLTIc\LTI\Platform;
 use ceLTIc\LTI\DataConnector\DataConnector;
+use ceLTIc\LTI\Profile;
 use ceLTIc\LTI\Service;
 use ceLTIc\LTI\Util;
 
@@ -36,6 +38,23 @@ class WebPA_Tool extends Tool
     {
         parent::__construct($data_connector);
 
+        $this->baseUrl = APP__WWW . '/mod/lti/';
+
+        $this->vendor = new Profile\Item('lboro', 'Loughborough University', 'Loughborough University',
+            'http://webpaproject.lboro.ac.uk/');
+        $this->product = new Profile\Item('659c790e-4071-4ef0-9f6e-248dab0b37d4', 'WebPA',
+            'An open source online peer assessment tool', 'http://webpaproject.lboro.ac.uk/', VERSION);
+
+        $requiredMessages = array(new Profile\Message('basic-lti-launch-request', 'index.php',
+                array('User.id', 'Membership.role', 'Person.name.full', 'Person.name.family', 'Person.name.given')));
+        $optionalMessages = array(new Profile\Message('ContentItemSelectionRequest', 'index.php',
+                array('User.id', 'Membership.role', 'Person.name.full', 'Person.name.family', 'Person.name.given'))
+        );
+
+        $this->resourceHandlers[] = new Profile\ResourceHandler(
+            new Profile\Item('webpa', 'WebPA', 'An open source online peer assessment tool'), 'logo50.png', $requiredMessages,
+            $optionalMessages);
+
         $this->setParameterConstraint('resource_link_id', true, 40, array('basic-lti-launch-request'));
         $this->setParameterConstraint('user_id', true);
 
@@ -43,6 +62,7 @@ class WebPA_Tool extends Tool
         $this->defaultEmail = DEFAULT_EMAIL;
 
         $this->signatureMethod = LTI_SIGNATURE_METHOD;
+        $this->jku = $this->baseUrl . 'jwks.php';
         $this->kid = LTI_KID;
         $this->rsaKey = LTI_PRIVATE_KEY;
         $this->requiredScopes = array(
@@ -173,6 +193,47 @@ class WebPA_Tool extends Tool
             $this->redirectUrl = APP__WWW . '/cookie.php?id=' . urlencode($this->userResult->getId()) . '&url=' . urlencode($this->returnUrl);
             return true;
         }
+    }
+
+    protected function onRegistration()
+    {
+        $platformConfig = $this->getPlatformConfiguration();
+        if ($this->ok) {
+            $toolConfig = $this->getConfiguration($platformConfig);
+            $registrationConfig = $this->sendRegistration($platformConfig, $toolConfig);
+            if ($this->ok) {
+                $now = time();
+                $platform = $this->getPlatformToRegister($platformConfig, $registrationConfig, false);
+                do {
+                    $key = self::getGUID();
+                    $consumer = Platform::fromConsumerKey($key, $this->dataConnector);
+                } while (!is_null($consumer->created));
+                $platform->setKey($key);
+                $platform->secret = Util::getRandomString(32);
+                $platform->name = 'Trial (' . date('Y-m-d H:i:s', $now) . ')';
+                $platform->protected = true;
+                if (defined('AUTO_ENABLE') && AUTO_ENABLE) {
+                    $platform->enabled = true;
+                }
+                if (defined('ENABLE_FOR_DAYS') && (ENABLE_FOR_DAYS > 0)) {
+                    $platform->enableFrom = $now;
+                    $platform->enableUntil = $now + (ENABLE_FOR_DAYS * 24 * 60 * 60);
+                }
+                $this->ok = $platform->save();
+            }
+        }
+        $this->getRegistrationResponsePage($toolConfig);
+        $this->ok = true;
+    }
+
+    private static function getGUID()
+    {
+
+        $str = strtoupper(Util::getRandomString(32));
+        $str = substr($str, 0, 8) . '-' . substr($str, 8, 4) . '-' . substr($str, 12, 4) . '-' . substr($str, 16, 4) . '-' . substr($str,
+                20);
+
+        return $str;
     }
 
 }

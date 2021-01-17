@@ -28,7 +28,6 @@ require_once('../../includes/inc_global.php');
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/setting.php');
 
-
 $url = APP__WWW . '/mod/' . LTI_MODULE_NAME . '/';
 $domain = APP__WWW;
 $pos = strpos($domain, '://');

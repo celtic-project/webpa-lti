@@ -58,7 +58,7 @@ $UI->body();
 $UI->content_start();
 ?>
 <ul>
-  <li><em>Launch URL, initiate login URL, redirection URI:</em> <?php echo $url; ?>index.php</li>
+  <li><em>Launch URL, initiate login URL, redirection URI, registration URL:</em> <?php echo $url; ?>index.php</li>
   <li><em>Public keyset URL:</em> <?php echo $url; ?>jwks.php</li>
   <li><em>Canvas configuration URLs:</em> <?php echo $url; ?>configure.php (XML) and <?php echo $url; ?>configure.php?json (JSON)</li>
 </ul>
