@@ -43,7 +43,7 @@ class WebPA_Tool extends Tool
         $this->vendor = new Profile\Item('lboro', 'Loughborough University', 'Loughborough University',
             'http://webpaproject.lboro.ac.uk/');
         $this->product = new Profile\Item('659c790e-4071-4ef0-9f6e-248dab0b37d4', 'WebPA',
-            'An open source online peer assessment tool', 'http://webpaproject.lboro.ac.uk/', VERSION);
+            'An open source online peer assessment tool', 'http://webpaproject.lboro.ac.uk/', APP__VERSION);
 
         $requiredMessages = array(new Profile\Message('basic-lti-launch-request', 'index.php',
                 array('User.id', 'Membership.role', 'Person.name.full', 'Person.name.family', 'Person.name.given')));
