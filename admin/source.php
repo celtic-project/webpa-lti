@@ -87,8 +87,15 @@ $UI->content_start();
 #
 ### Get list of sources
 #
+      $dbConnection = mysqli_connect(
+              APP__DB_HOST,
+              APP__DB_USERNAME,
+              APP__DB_PASSWORD,
+              APP__DB_DATABASE
+      );
+
       if (empty($lti_platform)) {
-          $data_connector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+          $data_connector = DataConnector::getDataConnector($dbConnection, APP__DB_TABLE_PREFIX);
       } else {
           $data_connector = $lti_platform->getDataConnector();
       }

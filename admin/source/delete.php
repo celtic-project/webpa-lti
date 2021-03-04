@@ -25,6 +25,7 @@
 ###
 
 use ceLTIc\LTI\Platform;
+use Doctrine\DBAL\ParameterType;
 
 require_once('../../includes.php');
 
@@ -84,9 +85,17 @@ if ($modules) {
 #
 ### Delete users for source
 #
-$sql = 'SELECT u.user_id FROM ' .
-    APP__DB_TABLE_PREFIX . "user u WHERE u.source_id = '{$source}'";
-$users = $DB->fetch($sql);
+$sql =
+    'SELECT u.user_id ' .
+    'FROM ' . APP__DB_TABLE_PREFIX . 'user u ' .
+    'WHERE u.source_id = ?';
+
+$users = $DB->getConnection()->fetchAllAssociative(
+    $sql,
+    [$source],
+    [ParameterType::STRING]
+);
+
 if ($users) {
     foreach ($users as $ids) {
         $user = new User('', '');

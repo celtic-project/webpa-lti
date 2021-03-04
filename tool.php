@@ -30,6 +30,7 @@ use ceLTIc\LTI\DataConnector\DataConnector;
 use ceLTIc\LTI\Profile;
 use ceLTIc\LTI\Service;
 use ceLTIc\LTI\Util;
+use Doctrine\DBAL\ParameterType;
 
 class WebPA_Tool extends Tool
 {
@@ -92,12 +93,35 @@ class WebPA_Tool extends Tool
 #
 ### Create/update module
 #
-        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'module SET module_title = ' . DataConnector::quoted($this->resourceLink->title) . ', ' .
-            "source_id = '{$this->resourceLink->getPlatform()->getKey()}', module_code = '{$resource_link_id}' ";
-        $sql .= 'ON DUPLICATE KEY UPDATE module_title = ' . DataConnector::quoted($this->resourceLink->title);
-        $DB->execute($sql);
-        $sql = 'SELECT module_id FROM ' . APP__DB_TABLE_PREFIX . "module WHERE source_id = '{$this->resourceLink->getPlatform()->getKey()}' AND module_code = '{$resource_link_id}'";
-        $module_id = $DB->fetch_value($sql);
+        $sql =
+            'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'module ' .
+            'SET module_title = ?, ' .
+            'source_id = ?, ' .
+            'module_code = ? ';
+            'ON DUPLICATE KEY UPDATE module_title = ?';
+
+        $DB->getConnection()->executeQuery(
+            $sql,
+            [
+                $this->resourceLink->title,
+                $this->resourceLink->getPlatform()->getKey(),
+                $resource_link_id,
+                $this->resourceLink->title
+            ],
+            [ParameterType::STRING, ParameterType::STRING, ParameterType::STRING, ParameterType::STRING]
+        );
+
+        $sql =
+            'SELECT module_id ' .
+            'FROM ' . APP__DB_TABLE_PREFIX . 'module ' .
+            'WHERE source_id = ? ' .
+            'AND module_code = ?';
+
+        $module_id = $DB->getConnection()->fetchOne(
+            $sql,
+            [$this->resourceLink->getPlatform()->getKey(), $resource_link_id],
+            [ParameterType::STRING, ParameterType::STRING]
+        );
 #
 ### Create/update user
 #
@@ -109,26 +133,87 @@ class WebPA_Tool extends Tool
             $this->reason = 'Invalid role, you must be either a member of staff or a learner.';
             return false;
         }
-        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . "user SET forename = '{$this->userResult->firstname}', lastname = '{$this->userResult->lastname}', email = '{$this->userResult->email}', " .
-            "source_id = '{$this->consumer->getKey()}', username = '{$this->userResult->getId()}', password = '" . md5(Util::getRandomString()) . "', " .
-            "last_module_id = {$module_id}, admin = 0 ";
-        $sql .= "ON DUPLICATE KEY UPDATE forename = '{$this->userResult->firstname}', lastname = '{$this->userResult->lastname}', email = '{$this->userResult->email}'";
-        $DB->execute($sql);
-        $sql = 'SELECT user_id FROM ' . APP__DB_TABLE_PREFIX . "user WHERE source_id = '{$this->consumer->getKey()}' AND username = '{$this->userResult->getId()}'";
-        $user_id = $DB->fetch_value($sql);
+
+        $sql =
+            'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'user ' .
+            'SET forename = ?, ' .
+            'lastname = ?, ' .
+            'email = ?, ' .
+            'source_id = ?, ' .
+            'username = ?, ' .
+            'password = ?, ' .
+            'last_module_id = ?, ' .
+            'admin = 0 ' .
+            'ON DUPLICATE KEY UPDATE forename = ?, ' .
+            'lastname = ?, ' .
+            'email = ?';
+
+        $DB->getConnection()->executeQuery(
+            $sql,
+            [
+                $this->userResult->firstname,
+                $this->userResult->lastname,
+                $this->userResult->email,
+                $this->consumer->getKey(),
+                $this->userResult->getId(),
+                password_hash(Util::getRandomString(), PASSWORD_DEFAULT),
+                $module_id,
+                $this->userResult->firstname,
+                $this->userResult->lastname,
+                $this->userResult->email
+            ],
+            [
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::INTEGER,
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::STRING,
+            ]
+        );
+
+        $sql =
+            'SELECT user_id ' .
+            'FROM ' . APP__DB_TABLE_PREFIX . 'user ' .
+            'WHERE source_id = ? ' .
+            'AND username = ?';
+
+        $user_id = $DB->getConnection()->fetchOne(
+            $sql,
+            [$this->consumer->getKey(), $this->userResult->getId()],
+            [ParameterType::STRING, ParameterType::STRING]
+        );
 #
 ### Create enrolment
 #
-        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . "user_module SET user_id = {$user_id}, module_id = {$module_id}, user_type = '{$usertype}' ";
-        $sql .= "ON DUPLICATE KEY UPDATE  user_type = '{$usertype}'";
+        $sql =
+            'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'user_module ' .
+            'SET user_id = ?, ' .
+            'module_id = ?, ' .
+            'user_type = ? ' .
+            'ON DUPLICATE KEY UPDATE user_type = ?';
 
-        $DB->execute($sql);
+        $DB->getConnection()->executeQuery(
+            $sql,
+            [$user_id, $module_id, $usertype, $usertype],
+            [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING, ParameterType::STRING]
+        );
 #
 ### Login user
 #
         $auth = new Authenticator();
-        $sql = 'SELECT * FROM ' . APP__DB_TABLE_PREFIX . "user WHERE user_id = {$user_id}";
-        if (!$auth->initialise($sql) || $auth->is_disabled()) {
+
+        $user = $DB->getConnection()->fetchAssociative(
+            'SELECT * FROM ' . APP__DB_TABLE_PREFIX . 'user WHERE user_id = ?',
+            [$user_id],
+            [ParameterType::INTEGER]
+        );
+
+        if (!$auth->initialise($user) || $auth->is_disabled()) {
 
             $this->reason = 'Sorry unable to log you in, your account does not exist or has been disabled.';
             return false;

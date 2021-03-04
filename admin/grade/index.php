@@ -26,6 +26,7 @@
 
 use ceLTIc\LTI\ResourceLink;
 use ceLTIc\LTI\Outcome;
+use Doctrine\DBAL\ParameterType;
 
 require_once('../../includes.php');
 
@@ -193,11 +194,20 @@ $UI->content_start();
 ### Get the assessments that are closed and have been marked
 #
           $now = date(MYSQL_DATETIME_FORMAT);
-          $sql = 'SELECT DISTINCT a.* FROM ' . APP__DB_TABLE_PREFIX . 'assessment a ' .
+          $sql =
+              'SELECT DISTINCT a.* ' .
+              'FROM ' . APP__DB_TABLE_PREFIX . 'assessment a ' .
               'LEFT JOIN ' . APP__DB_TABLE_PREFIX . 'assessment_marking am ON a.assessment_id = am.assessment_id ' .
-              "WHERE a.module_id = {$_module_id} AND a.close_date < '{$now}' AND am.assessment_id IS NOT NULL " .
+              'WHERE a.module_id = ? ' .
+              'AND a.close_date < ? ' .
+              'AND am.assessment_id IS NOT NULL ' .
               'ORDER BY a.open_date, a.close_date, a.assessment_name';
-          $assessments = $DB->fetch($sql);
+
+          $assessments = $DB->getConnection()->fetchAllAssociative(
+              $sql,
+              [$_module_id, $now],
+              [ParameterType::INTEGER, ParameterType::STRING]
+          );
 #
 ### Get details of last grade synchronisation
 #
