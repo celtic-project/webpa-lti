@@ -76,7 +76,7 @@ $UI->content_start();
         [tc_set_id] - pa_set_id, groups(tc_group_id, pa_group_id)
        */
       $settings = unserialize($resource_link->getSetting('last.sync'));
-      $groups_map = $settings['groups_map'];
+      $groups_map = is_array($settings) && isset($settings['groups_map']) ? $settings['groups_map'] : null;
       if (is_null($groups_map)) {
           $groups_map = array();
       }
@@ -640,7 +640,7 @@ $UI->content_start();
 #
 ### Get details of last enrolment synchronisation
 #
-          $last = $settings['members'];
+          $last = is_array($settings) && isset($settings['members']) ? $settings['members'] : null;
           if ($last) {
               echo "<p>\n";
               echo "The last update was performed on {$last}.\n";
