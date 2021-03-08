@@ -360,7 +360,7 @@ $UI->content_start();
                   'WHERE um.module_id = ? ' .
                   'AND source_id = ?';
 
-              $users = $DB->getConnection()->fetchAllAssociative(
+              $users = $DB->getConnection()->fetchAllAssociativeIndexed(
                   $query,
                   [$_module_id, $_user_source_id],
                   [ParameterType::INTEGER, ParameterType::STRING]
