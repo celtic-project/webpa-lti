@@ -97,7 +97,7 @@ class WebPA_Tool extends Tool
             'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'module ' .
             'SET module_title = ?, ' .
             'source_id = ?, ' .
-            'module_code = ? ';
+            'module_code = ? ' .
             'ON DUPLICATE KEY UPDATE module_title = ?';
 
         $DB->getConnection()->executeQuery(
