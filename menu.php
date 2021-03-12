@@ -38,11 +38,19 @@ if (!property_exists($this, 'sourceId')) { // Prior to 3.1.0 release
     $this->user = $this->_user;
 }
 
+// create the database connection
+$dbConnection = mysqli_connect(
+    APP__DB_HOST,
+    APP__DB_USERNAME,
+    APP__DB_PASSWORD,
+    APP__DB_DATABASE
+);
+
 #
 ### Check if this is an LTI connection
 #
-$DB->open();
-$dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+$dataconnector = DataConnector::getDataConnector($dbConnection, APP__DB_TABLE_PREFIX);
+
 if ($this->sourceId) {
     $lti_platform = Platform::fromConsumerKey($_SESSION['_user_source_id'], $dataconnector);
     $user_resource_link = ResourceLink::fromPlatform($lti_platform, $_SESSION['_user_context_id']);
@@ -95,4 +103,3 @@ if ($this->user->is_admin()) {
     }
     $this->set_menu(' ', $menu);
 }
-?>

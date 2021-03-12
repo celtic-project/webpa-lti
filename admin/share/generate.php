@@ -34,8 +34,8 @@ require_once('../../setting.php');
 #
 ### Get query parameters
 #
-$life = $DB->escape_str(fetch_GET('life', '1'));
-$param = $DB->escape_str(fetch_GET('auto_approve'));
+$life = fetch_GET('life', '1');
+$param = fetch_GET('auto_approve');
 #
 ### Initialise LTI Resource Link
 #

@@ -59,21 +59,20 @@ session_destroy();
 session_start();
 
 #
-### Open database
+### Get database connection
 #
-$DB->open();
+$dbConnection = mysqli_connect(
+APP__DB_HOST,
+APP__DB_USERNAME,
+APP__DB_PASSWORD,
+APP__DB_DATABASE
+);
 
 #
 ### Perform LTI connection
 #
-$dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+$dataconnector = DataConnector::getDataConnector($dbConnection, APP__DB_TABLE_PREFIX);
 $tool = new WebPA_Tool($dataconnector);
 $tool->handleRequest();
 
-#
-### Close database
-#
-$DB->close();
-
 exit;
-?>
