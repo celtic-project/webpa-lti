@@ -19,6 +19,13 @@ if (!function_exists('fetch_GET')) {
 
 }
 
+function lti_fetch_GET($key, $default_value = '')
+{
+    global $DB;
+
+    return $DB->escape_str(fetch_GET($key, $default_value));
+}
+
 if (!function_exists('fetch_POST')) {
 
     function fetch_POST($key, $default_value = '')
@@ -26,6 +33,13 @@ if (!function_exists('fetch_POST')) {
         return \WebPA\includes\functions\Common::fetch_POST($key, $default_value);
     }
 
+}
+
+function lti_fetch_POST($key, $default_value = '')
+{
+    global $DB;
+
+    return $DB->escape_str(fetch_POST($key, $default_value));
 }
 
 if (!function_exists('logEvent')) {

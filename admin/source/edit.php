@@ -39,11 +39,11 @@ if (!check_user($_user, APP__USER_TYPE_ADMIN)) {
 #
 ### Get query parameters
 #
-$key = trim(fetch_GET('s', ''));
+$key = trim(lti_fetch_GET('s', ''));
 #
 ### Initialise LTI Platform
 #
-$secret = trim(fetch_POST('source_secret'));
+$secret = trim(lti_fetch_POST('source_secret'));
 if (!empty($key)) {
     $platform = Platform::fromConsumerKey($key, $dataconnector);
     if (empty($secret)) {
@@ -78,43 +78,43 @@ $sScreenMsg = '';
 #
 ### Check for save request
 #
-$action = trim(fetch_POST('save'));
+$action = trim(lti_fetch_POST('save'));
 if ($action) {
     switch ($action) {
         case 'Save Changes':
-            $platform->ltiVersion = trim(fetch_POST('source_ltiversion'));
+            $platform->ltiVersion = trim(lti_fetch_POST('source_ltiversion'));
             if (empty($key)) {
-                $key = trim(fetch_POST('source_key'));
+                $key = trim(lti_fetch_POST('source_key'));
                 $platform->setKey($key);
             }
-            $name = trim(fetch_POST('source_name'));
-            $platformid = trim(fetch_POST('source_platformid'));
-            $clientid = trim(fetch_POST('source_clientid'));
-            $deploymentid = trim(fetch_POST('source_deploymentid'));
-            $enabled = (fetch_POST('source_enabled') == '1');
-            $protected = (fetch_POST('source_protected') == '1');
-            $debugMode = (fetch_POST('source_debug') == '1');
+            $name = trim(lti_fetch_POST('source_name'));
+            $platformid = trim(lti_fetch_POST('source_platformid'));
+            $clientid = trim(lti_fetch_POST('source_clientid'));
+            $deploymentid = trim(lti_fetch_POST('source_deploymentid'));
+            $enabled = (lti_fetch_POST('source_enabled') == '1');
+            $protected = (lti_fetch_POST('source_protected') == '1');
+            $debugMode = (lti_fetch_POST('source_debug') == '1');
             $platform->name = $name;
             $platform->secret = $secret;
             $platform->platformId = !empty($platformid) ? $platformid : null;
             $platform->clientId = !empty($clientid) ? $clientid : null;
             $platform->deploymentId = !empty($deploymentid) ? $deploymentid : null;
-            $platform->authorizationServerId = trim(fetch_POST('source_authorizationserverid'));
-            $platform->authenticationUrl = trim(fetch_POST('source_authenticationurl'));
-            $platform->accessTokenUrl = trim(fetch_POST('source_accesstokenurl'));
-            $platform->rsaKey = trim(fetch_POST('source_publickey'));
-            $platform->jku = trim(fetch_POST('source_jku'));
+            $platform->authorizationServerId = trim(lti_fetch_POST('source_authorizationserverid'));
+            $platform->authenticationUrl = trim(lti_fetch_POST('source_authenticationurl'));
+            $platform->accessTokenUrl = trim(lti_fetch_POST('source_accesstokenurl'));
+            $platform->rsaKey = trim(lti_fetch_POST('source_publickey'));
+            $platform->jku = trim(lti_fetch_POST('source_jku'));
             $platform->enabled = $enabled;
             $platform->protected = $protected;
             $platform->debugMode = $debugMode;
-            $date = trim(fetch_POST('source_from'));
+            $date = trim(lti_fetch_POST('source_from'));
             if (empty($date)) {
                 $platform->enableFrom = null;
             } else {
                 $time = strtotime($date);
                 $platform->enableFrom = $time;
             }
-            $date = trim(fetch_POST('source_until'));
+            $date = trim(lti_fetch_POST('source_until'));
             if (empty($date)) {
                 $platform->enableUntil = null;
             } else {
@@ -127,7 +127,7 @@ if ($action) {
                     $platform->setSetting($name, null);
                 }
             }
-            $properties = trim(fetch_POST('source_properties'));
+            $properties = trim(lti_fetch_POST('source_properties'));
             $properties = str_replace("\r\n", "\n", $properties);
             $properties = explode("\n", $properties);
             foreach ($properties as $property) {

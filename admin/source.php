@@ -40,7 +40,7 @@ if (!check_user($_user, APP__USER_TYPE_ADMIN)) {
 ### Check is a source has been selected
 #
 $sScreenMsg = '';
-$source_id = fetch_POST('source_id', null);
+$source_id = lti_fetch_POST('source_id', null);
 if (!is_null($source_id)) {
     $modules = $CIS->get_user_modules(null, null, 'name', $source_id);
     if (is_array($modules)) {

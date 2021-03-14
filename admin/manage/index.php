@@ -114,7 +114,7 @@ $UI->content_start();
 #
 ### Check if update has been confirmed
 #
-      if (fetch_POST('do')) {
+      if (lti_fetch_POST('do')) {
           if (isset($_SESSION['_group_changes'])) {
               $group_changes = $_SESSION['_group_changes'];
           }
@@ -206,7 +206,7 @@ $UI->content_start();
 ### Check for users to unenrol
 #
           if (isset($_SESSION['_to_delete'])) {
-              if (strpos(fetch_POST('do'), 'without') === false) {
+              if (strpos(lti_fetch_POST('do'), 'without') === false) {
                   $users = $_SESSION['_to_delete'];
                   foreach ($users as $user) {
                       $sql = "DELETE FROM " . APP__DB_TABLE_PREFIX . "user_module WHERE user_id = {$user['user_id']} " .
@@ -303,7 +303,7 @@ $UI->content_start();
           $resource_link->save();
 
           echo "<div class=\"success_box\">Updates completed.</div>\n";
-      } else if (fetch_POST('continue')) {
+      } else if (lti_fetch_POST('continue')) {
 #
 ### Fetch latest enrolment list from source
 #

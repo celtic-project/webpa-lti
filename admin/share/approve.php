@@ -31,8 +31,8 @@ require_once('../../includes.php');
 #
 ### Get query parameters
 #
-$do = fetch_GET('do');
-$resource_link_id = fetch_GET('rlid');
+$do = lti_fetch_GET('do');
+$resource_link_id = lti_fetch_GET('rlid');
 #
 ### Check parameters
 #

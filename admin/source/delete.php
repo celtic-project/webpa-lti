@@ -45,7 +45,7 @@ if (!check_user($_user, APP__USER_TYPE_ADMIN)) {
 #
 ### Get query parameters
 #
-$source = fetch_GET('s');
+$source = lti_fetch_GET('s');
 #
 ### Set the page information
 #

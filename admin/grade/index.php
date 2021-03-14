@@ -93,8 +93,8 @@ $UI->content_start();
   <?php
   $resource_link = ResourceLink::fromPlatform($lti_platform, $_module_code);
   if ($resource_link->hasOutcomesService()) {
-      $assessment_id = fetch_GET('a');
-      $marking_date = fetch_GET('md');
+      $assessment_id = lti_fetch_GET('a');
+      $marking_date = lti_fetch_GET('md');
       if ($assessment_id && $marking_date) {
           $ok = true;
           $assessment = new Assessment($DB);
