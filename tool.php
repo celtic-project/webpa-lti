@@ -55,7 +55,7 @@ class WebPA_Tool extends Tool
             new Profile\Item('webpa', 'WebPA', 'An open source online peer assessment tool'), 'logo50.png', $requiredMessages,
             $optionalMessages);
 
-        $this->setParameterConstraint('resource_link_id', true, 40, array('basic-lti-launch-request'));
+        $this->setParameterConstraint('resource_link_id', true, 255, array('basic-lti-launch-request'));
         $this->setParameterConstraint('user_id', true);
 
         $this->allowSharing = ALLOW_SHARING;
