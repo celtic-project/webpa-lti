@@ -26,7 +26,6 @@
 
 use ceLTIc\LTI\Tool;
 use ceLTIc\LTI\Platform;
-use ceLTIc\LTI\DataConnector\DataConnector;
 use ceLTIc\LTI\Profile;
 use ceLTIc\LTI\Service;
 use ceLTIc\LTI\Util;
@@ -92,12 +91,21 @@ class WebPA_Tool extends Tool
 #
 ### Create/update module
 #
-        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'module SET module_title = ' . DataConnector::quoted($this->resourceLink->title) . ', ' .
-            "source_id = '{$this->resourceLink->getPlatform()->getKey()}', module_code = '{$resource_link_id}' ";
-        $sql .= 'ON DUPLICATE KEY UPDATE module_title = ' . DataConnector::quoted($this->resourceLink->title);
-        $DB->execute($sql);
-        $sql = 'SELECT module_id FROM ' . APP__DB_TABLE_PREFIX . "module WHERE source_id = '{$this->resourceLink->getPlatform()->getKey()}' AND module_code = '{$resource_link_id}'";
-        $module_id = $DB->fetch_value($sql);
+        $dbConnection = lti_getConnection();
+        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'module SET module_title = ?, ' .
+            'source_id = ?, module_code = ? ON DUPLICATE KEY UPDATE module_title = ?';
+        $title = $this->resourceLink->title;
+        $key = $this->resourceLink->getPlatform()->getKey();
+        $stmt = $dbConnection->prepare($sql);
+        $stmt->bind_param('ssss', $title, $key, $resource_link_id, $title);
+        $stmt->execute();
+        $sql = 'SELECT module_id FROM ' . APP__DB_TABLE_PREFIX . 'module WHERE (source_id = ?) AND (module_code = ?)';
+        $stmt = $dbConnection->prepare($sql);
+        $stmt->bind_param('ss', $key, $resource_link_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $module_id = $row['module_id'];
 #
 ### Create/update user
 #
@@ -109,27 +117,50 @@ class WebPA_Tool extends Tool
             $this->reason = 'Invalid role, you must be either a member of staff or a learner.';
             return false;
         }
-        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . "user SET forename = '{$this->userResult->firstname}', lastname = '{$this->userResult->lastname}', email = '{$this->userResult->email}', " .
-            "source_id = '{$this->consumer->getKey()}', username = '{$this->userResult->getId()}', password = '" . md5(Util::getRandomString()) . "', " .
-            "last_module_id = {$module_id}, admin = 0 ";
-        $sql .= "ON DUPLICATE KEY UPDATE forename = '{$this->userResult->firstname}', lastname = '{$this->userResult->lastname}', email = '{$this->userResult->email}'";
-        $DB->execute($sql);
-        $sql = 'SELECT user_id FROM ' . APP__DB_TABLE_PREFIX . "user WHERE source_id = '{$this->consumer->getKey()}' AND username = '{$this->userResult->getId()}'";
-        $user_id = $DB->fetch_value($sql);
+        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'user SET forename = ?, lastname = ?, email = ?, ' .
+            'source_id = ?, username = ?, password = ?, ' .
+            'last_module_id = ?, admin = 0 ' .
+            'ON DUPLICATE KEY UPDATE forename = ?, lastname = ?, email = ?';
+        $firstname = $this->userResult->firstname;
+        $lastname = $this->userResult->lastname;
+        $email = $this->userResult->email;
+        $id = $this->userResult->getId();
+        $key = $this->resourceLink->getPlatform()->getKey(); //$this->consumer->getKey();
+        $password = md5(Util::getRandomString());
+        $stmt = $dbConnection->prepare($sql);
+        $stmt->bind_param('ssssssisss', $firstname, $lastname, $email, $key, $id, $password, $module_id, $firstname, $lastname,
+            $email);
+        $stmt->execute();
+        $sql = 'SELECT user_id FROM ' . APP__DB_TABLE_PREFIX . 'user WHERE (source_id = ?) AND (username = ?)';
+        $stmt = $dbConnection->prepare($sql);
+        $stmt->bind_param('ss', $key, $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $user_id = $row['user_id'];
 #
 ### Create enrolment
 #
-        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . "user_module SET user_id = {$user_id}, module_id = {$module_id}, user_type = '{$usertype}' ";
-        $sql .= "ON DUPLICATE KEY UPDATE  user_type = '{$usertype}'";
-
-        $DB->execute($sql);
+        $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'user_module SET user_id = ?, module_id = ?, user_type = ? ' .
+            'ON DUPLICATE KEY UPDATE  user_type = ?';
+        $stmt = $dbConnection->prepare($sql);
+        $stmt->bind_param('iiss', $user_id, $module_id, $usertype, $usertype);
+        $stmt->execute();
 #
 ### Login user
 #
         $auth = new Authenticator();
-        $sql = 'SELECT * FROM ' . APP__DB_TABLE_PREFIX . "user WHERE user_id = {$user_id}";
-        if (!$auth->initialise($sql) || $auth->is_disabled()) {
-
+        if (!class_exists('Doctrine\DBAL\ParameterType')) {
+            $param = 'SELECT * FROM ' . APP__DB_TABLE_PREFIX . "user WHERE user_id = {$user_id}";
+        } else {
+            $sql = 'SELECT * FROM ' . APP__DB_TABLE_PREFIX . 'user WHERE (user_id = ?)';
+            $stmt = $dbConnection->prepare($sql);
+            $stmt->bind_param('i', $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $param = $result->fetch_assoc();
+        }
+        if (!$auth->initialise($param) || $auth->is_disabled()) {
             $this->reason = 'Sorry unable to log you in, your account does not exist or has been disabled.';
             return false;
         } else {

@@ -69,8 +69,12 @@ if ($modules) {
 ### Delete users for source
 #
 $sql = 'SELECT u.user_id FROM ' .
-    APP__DB_TABLE_PREFIX . "user u WHERE u.source_id = '{$source}'";
-$users = $DB->fetch($sql);
+    APP__DB_TABLE_PREFIX . "user u WHERE u.source_id = ?";
+$stmt = lti_getConnection()->prepare($sql);
+$stmt->bind_param('s', $source);
+$stmt->execute();
+$result = $stmt->get_result();
+$users = $result->fetch_all(MYSQLI_ASSOC);
 if ($users) {
     foreach ($users as $ids) {
         $user = new User('', '');

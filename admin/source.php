@@ -43,7 +43,7 @@ $sScreenMsg = '';
 $source_id = lti_fetch_POST('source_id', null);
 if (!is_null($source_id)) {
     $modules = $CIS->get_user_modules(null, null, 'name', $source_id);
-    if (is_array($modules)) {
+    if (!empty($modules)) {
         $_SESSION['_source_id'] = $source_id;
         $_SESSION['_user_source_id'] = $source_id;
 
@@ -88,7 +88,7 @@ $UI->content_start();
 ### Get list of sources
 #
       if (empty($lti_platform)) {
-          $data_connector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+          $data_connector = DataConnector::getDataConnector(lti_getConnection(), APP__DB_TABLE_PREFIX);
       } else {
           $data_connector = $lti_platform->getDataConnector();
       }

@@ -61,19 +61,23 @@ session_start();
 #
 ### Open database
 #
-$DB->open();
+if (method_exists($DB, 'open')) {
+    $DB->open();
+}
 
 #
 ### Perform LTI connection
 #
-$dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+$dataconnector = DataConnector::getDataConnector(lti_getConnection(), APP__DB_TABLE_PREFIX);
 $tool = new WebPA_Tool($dataconnector);
 $tool->handleRequest();
 
 #
 ### Close database
 #
-$DB->close();
+if (method_exists($DB, 'close')) {
+    $DB->close();
+}
 
 exit;
 ?>

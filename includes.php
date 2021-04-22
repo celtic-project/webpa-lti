@@ -1,6 +1,18 @@
 <?php
 require_once(dirname(__FILE__) . '/../../includes/inc_global.php');
 
+function lti_getConnection()
+{
+    global $DB;
+
+    $connection = $DB->getConnection();
+    if (method_exists($connection, 'getWrappedConnection')) {
+        $connection = $connection->getWrappedConnection()->getWrappedResourceHandle();
+    }
+
+    return $connection;
+}
+
 if (!function_exists('check_user')) {
 
     function check_user($_user, $user_type = NULL)
@@ -21,9 +33,12 @@ if (!function_exists('fetch_GET')) {
 
 function lti_fetch_GET($key, $default_value = '')
 {
-    global $DB;
+    $value = fetch_GET($key, $default_value);
+    if (!empty($value)) {
+        $value = mysqli_real_escape_string(lti_getConnection(), $value);
+    }
 
-    return $DB->escape_str(fetch_GET($key, $default_value));
+    return $value;
 }
 
 if (!function_exists('fetch_POST')) {
@@ -37,9 +52,12 @@ if (!function_exists('fetch_POST')) {
 
 function lti_fetch_POST($key, $default_value = '')
 {
-    global $DB;
+    $value = fetch_POST($key, $default_value);
+    if (!empty($value)) {
+        $value = mysqli_real_escape_string(lti_getConnection(), $value);
+    }
 
-    return $DB->escape_str(fetch_POST($key, $default_value));
+    return $value;
 }
 
 if (!function_exists('logEvent')) {

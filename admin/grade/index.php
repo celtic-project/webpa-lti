@@ -195,9 +195,13 @@ $UI->content_start();
           $now = date(MYSQL_DATETIME_FORMAT);
           $sql = 'SELECT DISTINCT a.* FROM ' . APP__DB_TABLE_PREFIX . 'assessment a ' .
               'LEFT JOIN ' . APP__DB_TABLE_PREFIX . 'assessment_marking am ON a.assessment_id = am.assessment_id ' .
-              "WHERE a.module_id = {$_module_id} AND a.close_date < '{$now}' AND am.assessment_id IS NOT NULL " .
+              'WHERE a.module_id = ? AND a.close_date < ? AND am.assessment_id IS NOT NULL ' .
               'ORDER BY a.open_date, a.close_date, a.assessment_name';
-          $assessments = $DB->fetch($sql);
+          $stmt = lti_getConnection()->prepare($sql);
+          $stmt->bind_param('is', $_module_id, $now);
+          $stmt->execute();
+          $result = $stmt->get_result();
+          $assessments = $result->fetch_all(MYSQLI_ASSOC);
 #
 ### Get details of last grade synchronisation
 #
@@ -227,9 +231,9 @@ $UI->content_start();
           if (!$assessments) {
               ?>
               <p>You do not have any completed, marked assessments.</p>
-                <?php
-            } else {
-                ?>
+              <?php
+          } else {
+              ?>
               <div class="obj_list">
                 <?php
 #
@@ -241,7 +245,7 @@ $UI->content_start();
 #
 ### Display assessments
 #
-                $assessment_iterator = new SimpleObjectIterator($assessments, 'Assessment', '$DB');
+                $assessment_iterator = new SimpleObjectIterator($assessments, 'Assessment', $DB);
                 for ($assessment_iterator->reset(); $assessment_iterator->is_valid(); $assessment_iterator->next()) {
                     $assessment = & $assessment_iterator->current();
                     $assessment->set_db($DB);
@@ -301,9 +305,9 @@ $UI->content_start();
                       }
                       ?>
                     </div>
-                <?php
-            }
-            ?>
+                    <?php
+                }
+                ?>
               </div>
               <?php
           }
@@ -315,9 +319,9 @@ $UI->content_start();
         Sorry, this source does not support the outcomes service.
       </p>
 
-    <?php
-}
-?>
+      <?php
+  }
+  ?>
 </div>
 <?php
 $UI->content_end();

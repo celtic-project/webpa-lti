@@ -153,8 +153,10 @@ $UI->content_start();
                       $role = APP__USER_TYPE_STUDENT;
                   }
                   $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'user_module (user_id, module_id, user_type) ' .
-                      "VALUES ({$user_id}, {$_module_id}, '{$role}')";
-                  $DB->execute($sql);
+                      'VALUES (?, ?, ?)';
+                  $stmt = lti_getConnection()->prepare($sql);
+                  $stmt->bind_param('iis', $user_id, $_module_id, $role);
+                  $stmt->execute();
 // Update any pending group memberships with user ID
                   if (isset($group_changes['member']['add'])) {
                       for ($i = 0; $i < count($group_changes['member']['add']); $i++) {
@@ -196,9 +198,11 @@ $UI->content_start();
                   } else {
                       $role = APP__USER_TYPE_STUDENT;
                   }
-                  $sql = 'UPDATE ' . APP__DB_TABLE_PREFIX . "user_module SET user_type = '{$role}' " .
-                      "WHERE (user_id = {$id}) AND (module_id = {$_module_id})";
-                  $DB->execute($sql);
+                  $sql = 'UPDATE ' . APP__DB_TABLE_PREFIX . 'user_module SET user_type = ? ' .
+                      'WHERE (user_id = ?) AND (module_id = ?)';
+                  $stmt = lti_getConnection()->prepare($sql);
+                  $stmt->bind_param('sii', $role, $id, $_module_id);
+                  $stmt->execute();
               }
               unset($_SESSION['_to_update_role']);
           }
@@ -209,9 +213,11 @@ $UI->content_start();
               if (strpos(lti_fetch_POST('do'), 'without') === false) {
                   $users = $_SESSION['_to_delete'];
                   foreach ($users as $user) {
-                      $sql = "DELETE FROM " . APP__DB_TABLE_PREFIX . "user_module WHERE user_id = {$user['user_id']} " .
-                          "AND module_id = {$_module_id}";
-                      $DB->execute($sql);
+                      $sql = 'DELETE FROM ' . APP__DB_TABLE_PREFIX . 'user_module WHERE (user_id = ?) ' .
+                          'AND (module_id = ?)';
+                      $stmt = lti_getConnection()->prepare($sql);
+                      $stmt->bind_param('ii', $user['user_id'], $_module_id);
+                      $stmt->execute();
                   }
               }
               unset($_SESSION['_to_delete']);
@@ -281,15 +287,20 @@ $UI->content_start();
           }
           if (isset($group_changes['member']['delete'])) {
               foreach ($group_changes['member']['delete'] as $member) {
-                  $DB->execute("DELETE FROM " . APP__DB_TABLE_PREFIX . "user_group_member WHERE (user_id = '{$member['pa_user_id']}') AND " .
-                      "(group_id = '{$member['pa_group_id']}')");
+                  $sql = 'DELETE FROM ' . APP__DB_TABLE_PREFIX . 'user_group_member WHERE (user_id = ?) AND ' .
+                      '(group_id = ?)';
+                  $stmt = lti_getConnection()->prepare($sql);
+                  $stmt->bind_param('is', $member['pa_user_id'], $member['pa_group_id']);
+                  $stmt->execute();
               }
           }
           if (isset($group_changes['member']['add'])) {
               foreach ($group_changes['member']['add'] as $member) {
                   if (isset($groups_map[$member['set_id']])) {  // check group is not for a new group set was not selected for sync
-                      $DB->do_insert('INSERT INTO ' . APP__DB_TABLE_PREFIX . "user_group_member ({fields}) VALUES ({values})",
-                          array('user_id' => $member['pa_user_id'], 'group_id' => $groups_map[$member['set_id']]['groups'][$member['group_id']]));
+                      $sql = 'INSERT INTO ' . APP__DB_TABLE_PREFIX . 'user_group_member (user_id, group_id) VALUES (?, ?)';
+                      $stmt = lti_getConnection()->prepare($sql);
+                      $stmt->bind_param('is', $member['pa_user_id'], $groups_map[$member['set_id']]['groups'][$member['group_id']]);
+                      $stmt->execute();
                   }
               }
           }
@@ -310,10 +321,18 @@ $UI->content_start();
           $lti_platform->defaultEmail = DEFAULT_EMAIL;
           $members = $resource_link->getMemberships(true);
           if ($members !== false) {
-              $query = 'SELECT u.username, u.user_id, u.forename, u.lastname, u.email, um.user_type FROM ' .
+              $sql = 'SELECT u.username, u.user_id, u.forename, u.lastname, u.email, um.user_type FROM ' .
                   APP__DB_TABLE_PREFIX . 'user u INNER JOIN ' . APP__DB_TABLE_PREFIX . 'user_module um ON u.user_id = um.user_id ' .
-                  "WHERE (um.module_id = {$_module_id}) AND (source_id = '{$_user_source_id}')";
-              $users = $DB->fetch_assoc($query);
+                  'WHERE (um.module_id = ?) AND (u.source_id = ?)';
+              $stmt = lti_getConnection()->prepare($sql);
+              $stmt->bind_param('is', $_module_id, $_user_source_id);
+              $stmt->execute();
+              $result = $stmt->get_result();
+              $temp = $result->fetch_all(MYSQLI_ASSOC);
+              $users = array();
+              foreach ($temp as $user) {
+                  $users[array_shift($user)] = $user;
+              }
 #
 ### Check for new, changed and deleted group sets
 #

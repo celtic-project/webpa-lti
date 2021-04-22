@@ -29,6 +29,7 @@ use ceLTIc\LTI\Platform;
 use ceLTIc\LTI\ResourceLink;
 
 require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/includes.php');
 require_once(__DIR__ . '/setting.php');
 
 global $DB, $dataconnector, $lti_platform, $user_resource_link;
@@ -41,8 +42,10 @@ if (!property_exists($this, 'sourceId')) { // Prior to 3.1.0 release
 #
 ### Check if this is an LTI connection
 #
-$DB->open();
-$dataconnector = DataConnector::getDataConnector($DB->getConnection(), APP__DB_TABLE_PREFIX);
+if (method_exists($DB, 'open')) {
+    $DB->open();
+}
+$dataconnector = DataConnector::getDataConnector(lti_getConnection(), APP__DB_TABLE_PREFIX);
 if ($this->sourceId) {
     $lti_platform = Platform::fromConsumerKey($_SESSION['_user_source_id'], $dataconnector);
     $user_resource_link = ResourceLink::fromPlatform($lti_platform, $_SESSION['_user_context_id']);
