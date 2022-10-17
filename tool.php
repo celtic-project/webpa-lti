@@ -173,7 +173,8 @@ class WebPA_Tool extends Tool
             $_SESSION['_module_id'] = $module_id;
             $_SESSION['_user_source_id'] = $this->userResult->getResourceLink()->getPlatform()->getKey();
             $_SESSION['_user_context_id'] = $this->userResult->getResourceLink()->getId();
-            if (strtolower(lti_fetch_POST('launch_presentation_document_target', 'window')) != 'window') {
+            if (!empty($this->messageParameters['launch_presentation_document_target']) &&
+                (strtolower($this->messageParameters['launch_presentation_document_target']) !== 'window')) {
                 $_SESSION['logout_url'] = $this->returnUrl;
                 $_SESSION['_no_header'] = true;
             }
