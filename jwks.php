@@ -27,6 +27,7 @@
 use ceLTIc\LTI\Jwt\Jwt;
 
 require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/includes.php');
 require_once(__DIR__ . '/setting.php');
 
 $jwt = Jwt::getJwtClient();
