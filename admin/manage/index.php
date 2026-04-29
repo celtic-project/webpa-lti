@@ -145,7 +145,6 @@ $UI->content_start();
                     $new_user->forename = $user->firstname;
                     $new_user->lastname = $user->lastname;
                     $new_user->email = $user->email;
-                    // $new_user->update_password(str_random());
                     $new_user->set_dao_object($DB);
 
                     if ($exists) {
