@@ -29,6 +29,8 @@ use ceLTIc\LTI\Tool;
 
 require_once('../../includes.php');
 
+ini_set('max_execution_time', 120);
+
 if (file_exists(DOC__ROOT . 'includes/functions/lib_string_functions.php')) {
     require_once(DOC__ROOT . 'includes/functions/lib_string_functions.php');
 } else {
