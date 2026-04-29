@@ -130,7 +130,7 @@ $UI->content_start();
 
                 foreach ($users as $user) {
                     $user = unserialize($user);
-                    $new_user = new User('', password_hash(str_random(), PASSWORD_DEFAULT));
+                    $new_user = new User('', str_random());
                     $user_row = $CIS->get_user_for_username($user->getId(Tool::ID_SCOPE_ID_ONLY), $_user_source_id);
 
                     if ($user_row) {
