@@ -129,7 +129,7 @@ $UI->content_start();
               $users = $_SESSION['_to_add'];
               foreach ($users as $user) {
                   $user = unserialize($user);
-                  $new_user = new User('', '');
+                  $new_user = new User('', str_random());
                   $user_row = $CIS->get_user_for_username($user->getId(Tool::ID_SCOPE_ID_ONLY), $_user_source_id);
                   if ($user_row) {
                       $exists = true;
@@ -142,7 +142,6 @@ $UI->content_start();
                   $new_user->forename = $user->firstname;
                   $new_user->lastname = $user->lastname;
                   $new_user->email = $user->email;
-                  $new_user->update_password(str_random());
                   $new_user->set_dao_object($DB);
                   if ($exists) {
                       $new_user->save_user();
