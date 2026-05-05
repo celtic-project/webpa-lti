@@ -59,6 +59,10 @@ $UI->help_link = '?q=node/237';
 ### Display page
 #
 $UI->head();
+?>
+<link href="../../css/lti.css" media="screen" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/sync.js"></script>
+<?php
 $UI->body();
 $UI->content_start();
 ?>
@@ -477,7 +481,7 @@ $UI->content_start();
                   }
               }
               ?>
-              <form action="" method="post">
+              <form action="" method="post" onsubmit="onSubmitSyncForm()">
                 <?php
 #
 ### Initialise set change arrays for display
@@ -615,7 +619,7 @@ $UI->content_start();
           }
           ?>
 
-          <form action="" method="post">
+          <form action="" method="post" onsubmit="onSubmitSyncForm()">
             <p>
               &nbsp;&nbsp;&nbsp;<input type="submit" name="continue" value="Continue" />
             </p>
@@ -633,7 +637,9 @@ $UI->content_start();
       <?php
   }
   ?>
-
+    <div id="processingOverlay">
+        <div id="infoTextOverlay">processing, please wait...</div>
+    </div>
 </div>
 <?php
 $UI->content_end();
