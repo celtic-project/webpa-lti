@@ -637,9 +637,12 @@ $UI->content_start();
       <?php
   }
   ?>
-    <div id="processingOverlay">
-        <div id="infoTextOverlay">processing, please wait...</div>
+  <div id="processingOverlay">
+    <div id="infoTextOverlay">
+      <img class="processing" src="../../images/processing.gif" alt="Please wait" /><br /><br />
+      Fetching list of users, please wait...
     </div>
+  </div>
 </div>
 <?php
 $UI->content_end();
