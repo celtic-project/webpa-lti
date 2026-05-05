@@ -60,7 +60,7 @@ $UI->help_link = '?q=node/237';
 #
 $UI->head();
 ?>
-<link href="<?php echo APP__WWW ?>../../css/lti.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="<?php echo APP__WWW ?>/../../css/lti.css" media="screen" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../../js/sync.js"></script>
 <?php
 $UI->body();
